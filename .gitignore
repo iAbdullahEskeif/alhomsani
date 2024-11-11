@@ -1,0 +1,4 @@
+store_frontend/node_modules/
+.venv/
+.git/
+__pycache__/
