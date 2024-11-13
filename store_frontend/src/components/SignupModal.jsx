@@ -1,18 +1,17 @@
-// SignupPage.jsx
-
 import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const SignupPage = () => {
+const SignUpModal = () => {
   const [formData, setFormData] = useState({
     email: "",
     user_name: "",
     password: "",
     confirmPassword: "",
   });
-
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,22 +21,44 @@ const SignupPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccessMessage("");
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    // Submit the form logic here, e.g., send data to your backend
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/users/create/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          user_name: formData.user_name,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setSuccessMessage("Account created successfully!");
+        setTimeout(() => navigate("/login"), 2000);  // Redirect after success
+      } else {
+        setError(data.error || "Sign up failed");
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-800 text-white flex flex-col justify-center items-center">
       <div className="bg-gray-900 p-8 rounded-lg w-96 shadow-2xl relative">
-        {/* Close Button */}
         <Link to="/" className="absolute top-3 right-3 text-gray-400 hover:text-gray-200">
           <FaTimes size={18} />
         </Link>
@@ -45,8 +66,8 @@ const SignupPage = () => {
         <h2 className="text-3xl font-semibold text-center mb-6">Sign Up</h2>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
+        {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
 
-        {/* Sign-Up Form */}
         <form onSubmit={handleSubmit}>
           <div className="mb-5">
             <label className="block text-gray-300 mb-2">Email</label>
@@ -63,14 +84,15 @@ const SignupPage = () => {
           <div className="mb-5">
             <label className="block text-gray-300 mb-2">User Name</label>
             <input
-              type="user-name"
-              name="user-name"
+              type="text"
+              name="user_name"
               value={formData.user_name}
               onChange={handleInputChange}
               className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-500"
               placeholder="Enter your username"
             />
           </div>
+
           <div className="mb-5">
             <label className="block text-gray-300 mb-2">Password</label>
             <input
@@ -114,5 +136,5 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default SignUpModal;
 

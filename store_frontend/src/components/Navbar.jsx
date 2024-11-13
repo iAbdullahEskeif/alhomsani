@@ -1,14 +1,40 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+// Navbar.js
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useJwt } from "react-jwt";
 import LoginModal from "./LoginModal";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [token, setToken] = useState(null);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const navigate = useNavigate();
+  const profileMenuRef = useRef(null);
+
+  const { decodedToken, isExpired } = useJwt(token);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+  const toggleProfileMenu = () => setShowProfileMenu((prev) => !prev);
+
+  const handleLogout = () => {
+    setToken(null);
+    navigate("/");
+  };
+
+  // Close profile menu if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <nav className="bg-gray-900 p-4 shadow-md">
@@ -16,26 +42,13 @@ const Navbar = () => {
         <Link to="/" className="text-white text-lg font-semibold hover:text-gray-400 transition-colors duration-200">
           Home
         </Link>
-        
-        {/* Hamburger Icon for mobile */}
+
+        {/* Hamburger Icon for Mobile Menu */}
         <button
-          className="block md:hidden text-white hover:text-gray-400 transition-transform duration-200"
+          className="md:hidden text-white hover:text-gray-400 transition-transform duration-200"
           onClick={toggleMenu}
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            />
-          </svg>
+          {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
         </button>
 
         {/* Desktop Menu */}
@@ -50,52 +63,86 @@ const Navbar = () => {
               Contact
             </Link>
           </li>
-          <li>
-            <button
-              onClick={openModal}
-              className="text-white bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg"
-            >
-              Login
-            </button>
-          </li>
+
+          {/* Conditionally Render Login/Profile Options */}
+          {token && !isExpired ? (
+            <li className="relative" ref={profileMenuRef}>
+              <button onClick={toggleProfileMenu} className="text-white bg-gray-700 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:bg-gray-600">
+                Profile
+              </button>
+              {showProfileMenu && (
+                <ul className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-50 text-gray-200">
+                  <li>
+                    <Link to="/profile" className="block px-4 py-2 hover:bg-gray-700" onClick={() => setShowProfileMenu(false)}>
+                      Access Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-700"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
+          ) : (
+            <li>
+              <button onClick={openModal} className="text-white bg-gray-700 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:bg-gray-600">
+                Login
+              </button>
+            </li>
+          )}
         </ul>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <ul className="flex flex-col md:hidden bg-gray-800 mt-3 space-y-3 p-4 rounded-lg shadow-md transition-all duration-200">
+          <ul className="flex flex-col md:hidden bg-gray-800 mt-3 space-y-3 p-4 rounded-lg shadow-md">
             <li>
-              <Link
-                to="/about"
-                className="text-white hover:text-gray-400 transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/about" className="text-white hover:text-gray-400 transition-colors duration-200" onClick={toggleMenu}>
                 About
               </Link>
             </li>
             <li>
-              <Link
-                to="/contact"
-                className="text-white hover:text-gray-400 transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/contact" className="text-white hover:text-gray-400 transition-colors duration-200" onClick={toggleMenu}>
                 Contact
               </Link>
             </li>
-            <li>
-              <button
-                onClick={() => {
-                  openModal();
-                  setIsMenuOpen(false);
-                }}
-                className="text-white bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg"
-              >
-                Login
-              </button>
-            </li>
+            {token && !isExpired ? (
+              <>
+                <li>
+                  <Link to="/profile" className="text-white hover:text-gray-400 transition-colors duration-200" onClick={toggleMenu}>
+                    Access Profile
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-white bg-gray-700 px-4 py-1 rounded-lg shadow-sm hover:bg-gray-600"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <li>
+                <button onClick={openModal} className="text-white bg-gray-700 px-4 py-1 rounded-lg shadow-sm hover:bg-gray-600">
+                  Login
+                </button>
+              </li>
+            )}
           </ul>
         )}
       </div>
-      {isModalOpen && <LoginModal closeModal={closeModal} />}
+      {isModalOpen && <LoginModal closeModal={closeModal} setToken={setToken} />}
     </nav>
   );
 };
