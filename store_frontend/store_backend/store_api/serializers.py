@@ -2,12 +2,13 @@ from rest_framework import serializers
 from store.models import Product
 from django.conf import settings
 
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Product
-        fields=('id','category','name','description','price','stock_quantity','stock_quantity','sku','created_at',
-                'updated_at','availability')
-        
+        model = Product
+        fields = ('id', 'category', 'name', 'description', 'price', 'stock_quantity', 'stock_quantity', 'sku', 'created_at',
+                  'updated_at', 'availability', 'images')
+
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 
