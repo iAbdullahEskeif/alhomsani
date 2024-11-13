@@ -9,10 +9,10 @@ from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly,Base
 class ProductDetail(generics.RetrieveDestroyAPIView):
       queryset=Product.objects.all()
       serializer_class=ProductSerializer 
-      permission_classes=[IsAuthenticated]
+      # permission_classes=[IsAuthenticated]
 
 
 class ProductList(generics.ListCreateAPIView):
-    permission_classes=[IsAuthenticated]
+#     permission_classes=[IsAuthenticated]
     queryset=Product.objects.filter(availability='in_stock')
     serializer_class=ProductSerializer 

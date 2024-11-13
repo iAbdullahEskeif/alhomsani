@@ -2,12 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class Category(models.Model):
-    name= models.CharField(max_length=200)
 
-    def _str_(self) -> str:
+class Category(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __str__(self) -> str:
         return self.name
-    
+
+
 class Product(models.Model):
     class ProductObjects(models.Manager):
         def get_queryset(self):
@@ -26,13 +28,15 @@ class Product(models.Model):
     sku = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-    availability = models.CharField(max_length=20, choices=availability_choices, default='in_stock')
+    availability = models.CharField(
+        max_length=20, choices=availability_choices, default='in_stock')
+    image = models.URLField()
 
-    objects = models.Manager()  
-    productobjects = ProductObjects()  
+    objects = models.Manager()
+    productobjects = ProductObjects()
 
     class Meta:
         ordering = ['-created_at']
 
-    def _str_(self) -> str:
+    def __str__(self) -> str:
         return self.name
