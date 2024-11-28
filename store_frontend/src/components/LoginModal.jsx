@@ -24,7 +24,10 @@ const LoginModal = ({ closeModal, setToken }) => {
 
       const data = await response.json();
       if (response.ok) {
-        setToken(data.access);  // Pass the token up to Navbar
+        setToken({
+          access: data.access,
+          refresh: data.refresh
+        });  // Pass both tokens up to Navbar
         closeModal();
       } else {
         setError(data.detail || "Login failed");

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const isAdmin = () => {
-  return true;
+  return false;
 };
 const LuxuryCars = () => {
   const [products, setProducts] = useState([
@@ -111,33 +111,33 @@ const LuxuryCars = () => {
           className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded shadow-lg hover:shadow-xl transition-all duration-300 mb-4"
         >
           Add Product
- {products.length > 0 && (
-  <div
-    className="flex overflow-hidden"
-    onTouchStart={handleTouchStart}
-    onTouchEnd={handleTouchEnd}
-  >
-    {getVisibleProducts().map((product) => (
-      <div key={product.id} className="w-1/3 p-4 transition-all duration-500 ease-in-out">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <img src={product.image} alt={product.name} className="w-48 h-32 object-cover" />
-          <div className="p-4">
-            <h3 className="text-xl font-semibold text-blue-600 mb-2">{product.name}</h3>
-            <p className="text-gray-600 mb-2">Price: {product.price}</p>
-            <p className="text-gray-600 mb-4">Rating: {product.rating}</p>
-            <Link
-              to={`/product/${product.name}`}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          {products.length > 0 && (
+            <div
+              className="flex overflow-hidden"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
             >
-              More Info
-            </Link>
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
-       </button>
+              {getVisibleProducts().map((product) => (
+                <div key={product.id} className="w-1/3 p-4 transition-all duration-500 ease-in-out">
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src={product.image} alt={product.name} className="w-48 h-32 object-cover" />
+                    <div className="p-4">
+                      <h3 className="text-xl font-semibold text-blue-600 mb-2">{product.name}</h3>
+                      <p className="text-gray-600 mb-2">Price: {product.price}</p>
+                      <p className="text-gray-600 mb-4">Rating: {product.rating}</p>
+                      <Link
+                        to={`/product/${product.name}`}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                      >
+                        More Info
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </button>
       )}
 
       {error && <p className="text-red-500">{error}</p>}
@@ -189,32 +189,32 @@ const LuxuryCars = () => {
         </form>
       )}
 
-{products.length > 0 && (
-  <div
-    className="flex overflow-hidden"
-    onTouchStart={handleTouchStart}
-    onTouchEnd={handleTouchEnd}
-  >
-    {getVisibleProducts().map((product) => (
-      <div key={product.id} className="w-1/3 p-4 transition-all duration-500 ease-in-out">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <img src={product.image} alt={product.name} className="w-48 h-32 object-cover" />
-          <div className="p-4">
-            <h3 className="text-xl font-semibold text-blue-600 mb-2">{product.name}</h3>
-            <p className="text-gray-600 mb-2">Price: {product.price}</p>
-            <p className="text-gray-600 mb-4">Rating: {product.rating}</p>
-            <Link
-              to={`/product/${product.name}`}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            >
-              More Info
-            </Link>
-          </div>
+      {products.length > 0 && (
+        <div
+          className="flex overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {getVisibleProducts().map((product) => (
+            <div key={product.id} className="w-1/3 p-4 transition-all duration-500 ease-in-out">
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <img src={product.image} alt={product.name} className="w-48 h-32 object-cover" />
+                <div className="p-4">
+                  <h3 className="text-xl font-semibold text-blue-600 mb-2">{product.name}</h3>
+                  <p className="text-gray-600 mb-2">Price: {product.price}</p>
+                  <p className="text-gray-600 mb-4">Rating: {product.rating}</p>
+                  <Link
+                    to={`/product/${product.name}`}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                  >
+                    More Info
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    ))}
-  </div>
-)}
+      )}
 
 
 

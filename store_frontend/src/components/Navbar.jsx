@@ -13,16 +13,35 @@ const Navbar = () => {
   const navigate = useNavigate();
   const profileMenuRef = useRef(null);
 
-  const { decodedToken, isExpired } = useJwt(token);
+  const { decodedToken, isExpired } = useJwt(token?.access);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   const toggleProfileMenu = () => setShowProfileMenu((prev) => !prev);
 
-  const handleLogout = () => {
-    setToken(null);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/users/logout/blacklist/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token.access}`
+        },
+        body: JSON.stringify({
+          "refresh_token": token.refresh
+        })
+      });
+      
+      if (response.ok) {
+        setToken(null);
+        navigate("/");
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   // Close profile menu if clicked outside
