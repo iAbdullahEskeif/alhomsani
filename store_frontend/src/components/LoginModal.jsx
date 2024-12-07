@@ -1,10 +1,12 @@
 // LoginModal.js
 import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
+import useSignIn from 'react-auth-kit';
 
 const LoginModal = ({ closeModal, setToken }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const signIn = useSignIn();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,21 +23,21 @@ const LoginModal = ({ closeModal, setToken }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      if (!response.ok) {
+        throw new Error(`Login failed: ${response.status} ${response.statusText}`);
+    }
 
       const data = await response.json();
-      if (response.ok) {
-        setToken({
-          access: data.access,
-          refresh: data.refresh
-        });  // Pass both tokens up to Navbar
-        closeModal();
-      } else {
-        setError(data.detail || "Login failed");
-      }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+      if (signIn({ token: data.token, expiresIn: 3600, tokenType: 'Bearer' })) {
+        console.log('Login successful');
+    } else {
+        console.log('Login failed');
     }
+} catch (error) {
+  console.error('An error occurred:', error.message);
+
   };
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">

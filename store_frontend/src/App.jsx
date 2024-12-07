@@ -7,10 +7,19 @@ import ClassicCars                      from "./pages/ClassicCars";
 import LuxuryCars                       from "./pages/LuxuryCars";
 import ElectricalCars                   from "./pages/ElectricalCars";
 import SignUpModal                      from "./components/SignupModal.jsx"
+import AuthProvider from "react-auth-kit";
 
 function App() {
   return (
+
+    <AuthProvider
+    authType={'localstorage'} // or 'sessionstorage' / 'cookie'
+    authName={'_auth'}
+    cookieDomain={window.location.hostname}
+    cookieSecure={false}>
+
     <BrowserRouter>
+
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -22,6 +31,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
       </Routes>
     </BrowserRouter>
+    </AuthProvider> 
   );
 }
 
