@@ -1,59 +1,14 @@
-// Navbar.js
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useJwt } from "react-jwt";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import LoginModal from "./LoginModal";
-import { FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [token, setToken] = useState(null);
-    const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const navigate = useNavigate();
-    const profileMenuRef = useRef(null);
-
-    const { decodedToken, isExpired } = useJwt(token?.access);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
-    const toggleMenu = () => setIsMenuOpen((prev) => !prev);
-    const toggleProfileMenu = () => setShowProfileMenu((prev) => !prev);
-
-    const handleLogout = async () => {
-        try {
-            const response = await fetch('http://127.0.0.1:8000/api/users/logout/blacklist/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.access}`
-                },
-                body: JSON.stringify({
-                    "refresh_token": token.refresh
-                })
-            });
-
-            if (response.ok) {
-                setToken(null);
-                navigate("/");
-            } else {
-                console.error('Logout failed');
-            }
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
-    };
-
-    // Close profile menu if clicked outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
-                setShowProfileMenu(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     return (
         <nav className="bg-gray-900 p-4 shadow-md">
@@ -62,12 +17,25 @@ const Navbar = () => {
                     Home
                 </Link>
 
-                {/* Hamburger Icon for Mobile Menu */}
+                {/* Hamburger Icon for mobile */}
                 <button
-                    className="md:hidden text-white hover:text-gray-400 transition-transform duration-200"
+                    className="block md:hidden text-white hover:text-gray-400 transition-transform duration-200"
                     onClick={toggleMenu}
                 >
-                    {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                    <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 6h16M4 12h16m-7 6h7"
+                        />
+                    </svg>
                 </button>
 
                 {/* Desktop Menu */}
@@ -82,86 +50,52 @@ const Navbar = () => {
                             Contact
                         </Link>
                     </li>
-
-                    {/* Conditionally Render Login/Profile Options */}
-                    {token && !isExpired ? (
-                        <li className="relative" ref={profileMenuRef}>
-                            <button onClick={toggleProfileMenu} className="text-white bg-gray-700 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:bg-gray-600">
-                                Profile
-                            </button>
-                            {showProfileMenu && (
-                                <ul className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-50 text-gray-200">
-                                    <li>
-                                        <Link to="/profile" className="block px-4 py-2 hover:bg-gray-700" onClick={() => setShowProfileMenu(false)}>
-                                            Access Profile
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <button
-                                            onClick={() => {
-                                                handleLogout();
-                                                setShowProfileMenu(false);
-                                            }}
-                                            className="w-full text-left px-4 py-2 hover:bg-gray-700"
-                                        >
-                                            Logout
-                                        </button>
-                                    </li>
-                                </ul>
-                            )}
-                        </li>
-                    ) : (
-                        <li>
-                            <button onClick={openModal} className="text-white bg-gray-700 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:bg-gray-600">
-                                Login
-                            </button>
-                        </li>
-                    )}
+                    <li>
+                        <button
+                            onClick={openModal}
+                            className="text-white bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg"
+                        >
+                            Login
+                        </button>
+                    </li>
                 </ul>
 
                 {/* Mobile Menu */}
                 {isMenuOpen && (
-                    <ul className="flex flex-col md:hidden bg-gray-800 mt-3 space-y-3 p-4 rounded-lg shadow-md">
+                    <ul className="flex flex-col md:hidden bg-gray-800 mt-3 space-y-3 p-4 rounded-lg shadow-md transition-all duration-200">
                         <li>
-                            <Link to="/about" className="text-white hover:text-gray-400 transition-colors duration-200" onClick={toggleMenu}>
+                            <Link
+                                to="/about"
+                                className="text-white hover:text-gray-400 transition-colors duration-200"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
                                 About
                             </Link>
                         </li>
                         <li>
-                            <Link to="/contact" className="text-white hover:text-gray-400 transition-colors duration-200" onClick={toggleMenu}>
+                            <Link
+                                to="/contact"
+                                className="text-white hover:text-gray-400 transition-colors duration-200"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
                                 Contact
                             </Link>
                         </li>
-                        {token && !isExpired ? (
-                            <>
-                                <li>
-                                    <Link to="/profile" className="text-white hover:text-gray-400 transition-colors duration-200" onClick={toggleMenu}>
-                                        Access Profile
-                                    </Link>
-                                </li>
-                                <li>
-                                    <button
-                                        onClick={() => {
-                                            handleLogout();
-                                            setIsMenuOpen(false);
-                                        }}
-                                        className="text-white bg-gray-700 px-4 py-1 rounded-lg shadow-sm hover:bg-gray-600"
-                                    >
-                                        Logout
-                                    </button>
-                                </li>
-                            </>
-                        ) : (
-                            <li>
-                                <button onClick={openModal} className="text-white bg-gray-700 px-4 py-1 rounded-lg shadow-sm hover:bg-gray-600">
-                                    Login
-                                </button>
-                            </li>
-                        )}
+                        <li>
+                            <button
+                                onClick={() => {
+                                    openModal();
+                                    setIsMenuOpen(false);
+                                }}
+                                className="text-white bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg"
+                            >
+                                Login
+                            </button>
+                        </li>
                     </ul>
                 )}
             </div>
-            {isModalOpen && <LoginModal closeModal={closeModal} setToken={setToken} />}
+            {isModalOpen && <LoginModal closeModal={closeModal} />}
         </nav>
     );
 };
