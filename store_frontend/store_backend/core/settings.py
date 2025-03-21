@@ -154,7 +154,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
 
@@ -195,7 +195,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://localhost:5173",
     "http://localhost:5175",
-    "http://192.168.181.177:5173"
+    "http://192.168.181.177:5173",
+    "http://192.168.95.177:5173"
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5174",

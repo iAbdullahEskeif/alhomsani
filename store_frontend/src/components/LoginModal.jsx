@@ -1,41 +1,44 @@
-// LoginModal.js
+import { useMutation } from '@tanstack/react-query';
 import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from '@tanstack/react-router'; // Changed import
 
 const LoginModal = ({ closeModal, setToken }) => {
     const [formData, setFormData] = useState({ email: "", password: "" });
-    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
-
-        try {
+    const loginMutation = useMutation({
+        mutationFn: async (credentials) => {
             const response = await fetch("http://127.0.0.1:8000/api/token/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(credentials),
             });
 
-            const data = await response.json();
-            if (response.ok) {
-                setToken({
-                    access: data.access,
-                    refresh: data.refresh
-                });  // Pass both tokens up to Navbar
-                closeModal();
-            } else {
-                setError(data.detail || "Login failed");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || "Login failed");
             }
-        } catch (error) {
-            setError("An error occurred. Please try again.");
-        }
+
+            return response.json();
+        },
+        onSuccess: (data) => {
+            setToken(data.access);
+            localStorage.setItem("access", data.access);
+            localStorage.setItem("refresh", data.refresh);
+            closeModal();
+            navigate({ to: "/" }); // TanStack Router navigation syntax
+        },
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        loginMutation.mutate(formData);
     };
 
     return (
@@ -45,7 +48,11 @@ const LoginModal = ({ closeModal, setToken }) => {
                     <FaTimes size={18} />
                 </button>
                 <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
-                {error && <p className="text-red-500 mb-4">{error}</p>}
+
+                {loginMutation.isError && (
+                    <p className="text-red-500 mb-4">{loginMutation.error.message}</p>
+                )}
+
                 <form onSubmit={handleSubmit}>
                     <div className="mb-5">
                         <label className="block text-gray-300 mb-2">Email</label>
@@ -69,13 +76,19 @@ const LoginModal = ({ closeModal, setToken }) => {
                             placeholder="Enter your password"
                         />
                     </div>
-                    <button type="submit" className="w-full bg-blue-600 py-2 rounded-lg text-white">
-                        Log In
+                    <button
+                        type="submit"
+                        disabled={loginMutation.isPending}
+                        className={`w-full ${loginMutation.isPending
+                            ? 'bg-blue-700 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-500'
+                            } py-2 rounded-lg text-white transition-colors`}
+                    >
+                        {loginMutation.isPending ? 'Logging In...' : 'Log In'}
                     </button>
 
                     <div className="mt-4 text-center">
-                        <p className="text-gray-400">
-                            Don't have an account?{" "}
+                        <p className="text-gray-400"> Don't have an account?{" "}
                             <Link
                                 to="/signup"
                                 className="text-blue-400 hover:text-blue-300"
