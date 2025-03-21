@@ -1,4 +1,4 @@
-#!/mnt/c/Users/aboud/projects/alhomsani/alhomsani/bin/python3
+#!/home/aboud/personal/projects/alhomsani/alhomsani/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

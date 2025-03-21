@@ -35,15 +35,17 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-# on Windows, a path can contain colons and backslashes and has to be converted:
+# Replace the hardcoded virtual env path with this:
+_VENV_RELATIVE_PATH=$(dirname "$(dirname "$0")")  # Gets parent directory of bin/
+
 if [ "${OSTYPE:-}" = "cygwin" ] || [ "${OSTYPE:-}" = "msys" ] ; then
-    # transform D:\path\to\venv to /d/path/to/venv on MSYS
-    # and to /cygdrive/d/path/to/venv on Cygwin
-    export VIRTUAL_ENV=$(cygpath "/mnt/c/Users/aboud/projects/alhomsani/alhomsani")
+    # Windows path conversion
+    export VIRTUAL_ENV=$(cygpath "$_VENV_RELATIVE_PATH")
 else
-    # use the path as-is
-    export VIRTUAL_ENV="/mnt/c/Users/aboud/projects/alhomsani/alhomsani"
+    # Unix-based systems
+    export VIRTUAL_ENV="$_VENV_RELATIVE_PATH"
 fi
+
 
 _OLD_VIRTUAL_PATH="$PATH"
 PATH="$VIRTUAL_ENV/bin:$PATH"
