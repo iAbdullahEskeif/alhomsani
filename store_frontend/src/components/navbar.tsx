@@ -1,74 +1,25 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import type React from "react";
+
+import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, X, LogOut, LogIn, Home, Info, Mail, Gauge } from "lucide-react";
-import LoginModal from "../routes/login";
+import {
+  useAuth,
+  useUser,
+  SignInButton,
+  SignOutButton,
+} from "@clerk/clerk-react";
 
 const Navbar: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
 
-  useEffect(() => {
-    setToken(localStorage.getItem("access"));
-  }, []);
-
-  const logoutMutation = useMutation<any, Error, string>({
-    mutationFn: async (refreshToken: string) => {
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/users/logout/blacklist/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ refresh_token: refreshToken }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to blacklist token");
-      }
-      return response.json();
-    },
-    onSettled: () => handleLogoutTransition(),
-  });
-
-  const handleLogoutTransition = () => {
-    setIsLoggingOut(true);
-    setTimeout(() => {
-      queryClient.clear();
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
-      setToken(null);
-      navigate({ to: "/" });
-      window.location.reload();
-    }, 500);
-  };
-
-  const handleLogout = () => {
-    const refreshToken = localStorage.getItem("refresh");
-    if (refreshToken) {
-      logoutMutation.mutate(refreshToken);
-    } else {
-      handleLogoutTransition();
-    }
-  };
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <nav
-      className={`bg-[#0a0a0a] border-b border-zinc-800 p-4 shadow-lg transition-opacity duration-500 ${
-        isLoggingOut ? "opacity-0" : "opacity-100"
-      }`}
-    >
+    <nav className={"bg-[#0a0a0a] border-b border-zinc-800 p-4 shadow-lg"}>
       <div className="container mx-auto flex justify-between items-center">
         <Link
           to="/"
@@ -120,32 +71,26 @@ const Navbar: React.FC = () => {
             </Link>
           </li>
           <li>
-            {token ? (
-              <button
-                onClick={handleLogout}
-                disabled={logoutMutation.isPending}
-                className={`flex items-center px-4 py-1.5 rounded-lg transition-all duration-200 shadow-sm ${
-                  logoutMutation.isPending
-                    ? "bg-rose-800 cursor-not-allowed"
-                    : "bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600"
-                }`}
-              >
-                <LogOut className="mr-1 h-4 w-4" />
-                {logoutMutation.isPending ? "Logging Out..." : "Logout"}
-              </button>
+            {isSignedIn ? (
+              <SignOutButton signOutCallback={() => navigate({ to: "/" })}>
+                <button className="flex items-center px-4 py-1.5 rounded-lg transition-all duration-200 shadow-sm bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600">
+                  <LogOut className="mr-1 h-4 w-4" />
+                  Logout
+                </button>
+              </SignOutButton>
             ) : (
-              <button
-                onClick={openModal}
-                className="flex items-center text-white bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg border border-zinc-700"
-              >
-                <LogIn className="mr-1 h-4 w-4 text-rose-500" />
-                Login
-              </button>
+              <SignInButton mode="modal">
+                <button className="flex items-center text-white bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg border border-zinc-700">
+                  <LogIn className="mr-1 h-4 w-4 text-rose-500" />
+                  Login
+                </button>
+              </SignInButton>
             )}
           </li>
         </ul>
       </div>
 
+      {/* Hamburger Menu */}
       {isMenuOpen && (
         <div className="md:hidden mt-4 bg-zinc-900 rounded-lg border border-zinc-800 shadow-[0_10px_30px_rgba(0,0,0,0.3)] overflow-hidden">
           <ul className="divide-y divide-zinc-800">
@@ -183,36 +128,30 @@ const Navbar: React.FC = () => {
               </Link>
             </li>
             <li>
-              {token ? (
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full flex items-center p-4 text-white bg-rose-700/20 hover:bg-rose-700/30 transition-colors"
-                >
-                  <LogOut className="mr-2 h-5 w-5 text-rose-500" />
-                  Logout
-                </button>
+              {isSignedIn ? (
+                <SignOutButton signOutCallback={() => navigate({ to: "/" })}>
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full flex items-center p-4 text-white bg-rose-700/20 hover:bg-rose-700/30 transition-colors"
+                  >
+                    <LogOut className="mr-2 h-5 w-5 text-rose-500" />
+                    Logout
+                  </button>
+                </SignOutButton>
               ) : (
-                <button
-                  onClick={() => {
-                    openModal();
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full flex items-center p-4 text-white bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors"
-                >
-                  <LogIn className="mr-2 h-5 w-5 text-rose-500" />
-                  Login
-                </button>
+                <SignInButton mode="modal">
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full flex items-center p-4 text-white bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors"
+                  >
+                    <LogIn className="mr-2 h-5 w-5 text-rose-500" />
+                    Login
+                  </button>
+                </SignInButton>
               )}
             </li>
           </ul>
         </div>
-      )}
-
-      {isModalOpen && (
-        <LoginModal closeModal={closeModal} setToken={setToken} />
       )}
     </nav>
   );

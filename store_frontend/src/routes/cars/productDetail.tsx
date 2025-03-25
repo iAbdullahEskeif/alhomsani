@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Star,
   StarHalf,
@@ -16,11 +16,6 @@ import {
   Award,
   Key,
 } from "lucide-react";
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/cars/productDetail")({
-  component: ProductDetail,
-});
 
 const MOCK_CAR = {
   id: 1,
@@ -172,7 +167,7 @@ function ProductDetail() {
   };
 
   return (
-    <div className="bg-[#0a0a0a] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48cGF0aCBkPSJNNTkuOTk5IDYwSDBWMGg1OS45OTlWNjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTU5Ljk5OSA2MEgzMFYzMGgyOS45OTlWNjB6TTMwIDYwSDBWMzBoMzBWNjB6TTU5Ljk5OSAzMEgzMFYwaDI5Ljk5OVYzMHpNMzAgMzBIMFYwaDMwVjMweiIgZmlsbD0iIzFhMWExYSIgZmlsbC1vcGFjaXR5PSIwLjA1Ii8+PHBhdGggZD0iTTUzLjk5OSA2MEg2VjZoNDcuOTk5VjYweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCA0Ny45OTljLTkuOTQxIDAtMTcuOTk5LTguMDU4LTE3Ljk5OS0xNy45OTlTMjAuMDU5IDEyIDMwIDEyczE3Ljk5OSA4LjA1OCAxNy45OTkgMTcuOTk5UzM5Ljk0MSA0Ny45OTkgMzAgNDcuOTk5eiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCA0Ny45OTljLTkuOTQxIDAtMTcuOTk5LTguMDU4LTE3Ljk5OS0xNy45OTlTMjAuMDU5IDEyIDMwIDEyczE3Ljk5OSA4LjA1OCAxNy45OTkgMTcuOTk5UzM5Ljk0MSA0Ny45OTkgMzAgNDcuOTk5em0wLTMxLjk5OGMtNy43MiAwLTEzLjk5OSA2LjI3OS0xMy45OTkgMTMuOTk5UzIyLjI4IDQzLjk5OSAzMCA0My45OTlzMTMuOTk5LTYuMjc5IDEzLjk5OS0xMy45OTlTMzcuNzIgMTYuMDAxIDMwIDE2LjAwMXoiIGZpbGw9IiMxYTFhMWEiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjxwYXRoIGQ9Ik0zMCAzNS45OTljLTMuMzE0IDAtNS45OTktMi42ODYtNS45OTktNS45OTlTMjYuNjg2IDI0IDMwIDI0czUuOTk5IDIuNjg2IDUuOTk5IDUuOTk5UzMzLjMxNCAzNS45OTkgMzAgMzUuOTk5eiIgZmlsbD0iIzFhMWExYSIgZmlsbC1vcGFjaXR5PSIwLjA1Ii8+PC9zdmc+')]">
+    <div className="bg-[#0a0a0a] ">
       <div className="w-full max-w-7xl mx-auto p-4 pt-6">
         <Link
           to="/"
@@ -250,16 +245,14 @@ function ProductDetail() {
                   </div>
                 </div>
               </div>
-
               <div className="md:w-1/2 flex justify-center z-10">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-blue-600 blur-xl opacity-20 rounded-full"></div>
+                <div className="relative hover:scale-105 transition-transform duration-700">
                   <img
-                    src={product.images || "/placeholder.svg"}
+                    src={product.images}
                     alt={product.name}
-                    className="w-full max-w-md rounded-lg shadow-2xl relative z-10 transform hover:scale-105 transition-transform duration-700"
+                    className="w-full max-w-md rounded-lg shadow-2xl relative z-10 transform "
                   />
-                  <div className="absolute -bottom-4 left-0 right-0 h-20 bg-gradient-to-t from-zinc-900 to-transparent z-20"></div>
+                  <div className="absolute -bottom-4  -left-4 -right-4 h-20 bg-gradient-to-t rounded-lg from-zinc-900 to-transparent z-20 "></div>
                 </div>
               </div>
             </div>
@@ -448,7 +441,7 @@ function ProductDetail() {
         </div>
 
         <div className="space-y-8">
-          <div className="bg-zinc-900 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] p-6 sticky top-4 hover-lift">
+          <div className="bg-zinc-900 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] p-6 top-4 hover-lift">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
               <Key className="h-5 w-5 text-rose-600 mr-2" />
               Purchase Options
@@ -801,3 +794,7 @@ function ProductDetail() {
     </div>
   );
 }
+
+export const Route = createFileRoute("/cars/productDetail")({
+  component: ProductDetail,
+});

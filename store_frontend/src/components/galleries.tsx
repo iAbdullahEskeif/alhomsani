@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
-
-const images: string[] = ["pic1.jpg", "pic2.webp", "pic3.png"];
 
 interface GalleryItem {
   name: string;
@@ -16,15 +14,6 @@ interface Gallery {
 
 const Galleries = () => {
   const [openIndexes, setOpenIndexes] = useState<Record<number, boolean>>({});
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [images.length]);
 
   const toggleItem = (index: number) => {
     setOpenIndexes((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -67,13 +56,20 @@ const Galleries = () => {
             >
               <span className="font-medium">{gallery.title}</span>
               <span className="text-rose-500">
-                {openIndexes[index] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                {openIndexes[index] ? (
+                  <ChevronUp size={18} />
+                ) : (
+                  <ChevronDown size={18} />
+                )}
               </span>
             </div>
             {openIndexes[index] && (
               <div className="p-4 bg-zinc-900">
                 {gallery.items.map((item: GalleryItem, itemIndex: number) => (
-                  <div key={itemIndex} className="mb-2 border-b border-zinc-800 pb-2 last:border-0 last:pb-0">
+                  <div
+                    key={itemIndex}
+                    className="mb-2 border-b border-zinc-800 pb-2 last:border-0 last:pb-0"
+                  >
                     <Link
                       to={item.path}
                       className="text-zinc-300 hover:text-rose-500 transition-colors duration-200 flex items-center"
@@ -92,3 +88,4 @@ const Galleries = () => {
 };
 
 export default Galleries;
+

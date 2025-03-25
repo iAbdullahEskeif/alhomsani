@@ -11,8 +11,6 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SignupImport } from './routes/signup'
-import { Route as LoginImport } from './routes/login'
 import { Route as ContactImport } from './routes/contact'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
@@ -22,18 +20,6 @@ import { Route as CarsElectricalCarsImport } from './routes/cars/electricalCars'
 import { Route as CarsClassicCarsImport } from './routes/cars/classicCars'
 
 // Create/Update Routes
-
-const SignupRoute = SignupImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const LoginRoute = LoginImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const ContactRoute = ContactImport.update({
   id: '/contact',
@@ -102,20 +88,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactImport
       parentRoute: typeof rootRoute
     }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupImport
-      parentRoute: typeof rootRoute
-    }
     '/cars/classicCars': {
       id: '/cars/classicCars'
       path: '/cars/classicCars'
@@ -153,8 +125,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
@@ -165,8 +135,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
@@ -178,8 +146,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
@@ -192,8 +158,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
-    | '/login'
-    | '/signup'
     | '/cars/classicCars'
     | '/cars/electricalCars'
     | '/cars/luxuryCars'
@@ -203,8 +167,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
-    | '/login'
-    | '/signup'
     | '/cars/classicCars'
     | '/cars/electricalCars'
     | '/cars/luxuryCars'
@@ -214,8 +176,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
-    | '/login'
-    | '/signup'
     | '/cars/classicCars'
     | '/cars/electricalCars'
     | '/cars/luxuryCars'
@@ -227,8 +187,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
-  LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
   CarsClassicCarsRoute: typeof CarsClassicCarsRoute
   CarsElectricalCarsRoute: typeof CarsElectricalCarsRoute
   CarsLuxuryCarsRoute: typeof CarsLuxuryCarsRoute
@@ -239,8 +197,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
-  LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
   CarsClassicCarsRoute: CarsClassicCarsRoute,
   CarsElectricalCarsRoute: CarsElectricalCarsRoute,
   CarsLuxuryCarsRoute: CarsLuxuryCarsRoute,
@@ -260,8 +216,6 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/contact",
-        "/login",
-        "/signup",
         "/cars/classicCars",
         "/cars/electricalCars",
         "/cars/luxuryCars",
@@ -276,12 +230,6 @@ export const routeTree = rootRoute
     },
     "/contact": {
       "filePath": "contact.tsx"
-    },
-    "/login": {
-      "filePath": "login.tsx"
-    },
-    "/signup": {
-      "filePath": "signup.tsx"
     },
     "/cars/classicCars": {
       "filePath": "cars/classicCars.tsx"
