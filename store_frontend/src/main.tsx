@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
 import { ClerkProvider } from "@clerk/clerk-react";
-import { clerkAppearance } from "./clerk-theme";
+import { ThemeProvider } from "./context/theme-context";
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
@@ -26,15 +26,13 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <ClerkProvider
-        publishableKey={PUBLISHABLE_KEY}
-        appearance={clerkAppearance}
-        afterSignOutUrl="/"
-      >
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </ClerkProvider>
+      <ThemeProvider>
+        <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </ClerkProvider>
+      </ThemeProvider>
     </StrictMode>,
   );
 }

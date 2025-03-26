@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useTheme } from "../context/theme-context";
 
 interface GalleryItem {
   name: string;
@@ -14,6 +15,7 @@ interface Gallery {
 
 const Galleries = () => {
   const [openIndexes, setOpenIndexes] = useState<Record<number, boolean>>({});
+  const { theme } = useTheme();
 
   const toggleItem = (index: number) => {
     setOpenIndexes((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -42,16 +44,20 @@ const Galleries = () => {
       <div className="max-w-md mx-auto mt-10 px-4 pb-16">
         <div className="flex items-center mb-6">
           <div className="w-1 h-8 bg-rose-600 mr-3"></div>
-          <h2 className="text-2xl font-bold text-white">Vehicle Categories</h2>
+          <h2
+            className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-zinc-900"}`}
+          >
+            Vehicle Categories
+          </h2>
         </div>
 
         {galleries.map((gallery: Gallery, index: number) => (
           <div
             key={index}
-            className="mb-4 border border-zinc-800 rounded-lg bg-zinc-900"
+            className={`mb-4 border ${theme === "dark" ? "border-zinc-800 bg-zinc-900" : "border-zinc-200 bg-white"} rounded-lg`}
           >
             <div
-              className="flex justify-between items-center p-4 bg-gradient-to-r from-zinc-900 to-zinc-800 text-white cursor-pointer rounded-t-lg border-b border-zinc-800"
+              className={`flex justify-between items-center p-4 ${theme === "dark" ? "bg-gradient-to-r from-zinc-900 to-zinc-800 text-white" : "bg-gradient-to-r from-zinc-50 to-zinc-100 text-zinc-900"} cursor-pointer rounded-t-lg border-b ${theme === "dark" ? "border-zinc-800" : "border-zinc-200"}`}
               onClick={() => toggleItem(index)}
             >
               <span className="font-medium">{gallery.title}</span>
@@ -64,15 +70,17 @@ const Galleries = () => {
               </span>
             </div>
             {openIndexes[index] && (
-              <div className="p-4 bg-zinc-900">
+              <div
+                className={`p-4 ${theme === "dark" ? "bg-zinc-900" : "bg-white"}`}
+              >
                 {gallery.items.map((item: GalleryItem, itemIndex: number) => (
                   <div
                     key={itemIndex}
-                    className="mb-2 border-b border-zinc-800 pb-2 last:border-0 last:pb-0"
+                    className={`mb-2 border-b ${theme === "dark" ? "border-zinc-800" : "border-zinc-200"} pb-2 last:border-0 last:pb-0`}
                   >
                     <Link
                       to={item.path}
-                      className="text-zinc-300 hover:text-rose-500 transition-colors duration-200 flex items-center"
+                      className={`${theme === "dark" ? "text-zinc-300" : "text-zinc-700"} hover:text-rose-500 transition-colors duration-200 flex items-center`}
                     >
                       {item.name}
                     </Link>
@@ -88,4 +96,3 @@ const Galleries = () => {
 };
 
 export default Galleries;
-

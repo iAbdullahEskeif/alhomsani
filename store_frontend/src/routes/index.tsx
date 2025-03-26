@@ -12,8 +12,10 @@ import { Link } from "@tanstack/react-router";
 import Banner from "../components/banner";
 import Galleries from "../components/galleries";
 import { createFileRoute } from "@tanstack/react-router";
+import { useTheme } from "../context/theme-context";
 
 function Index() {
+  const { theme } = useTheme();
   const images = ["pic1.jpg", "pic2.webp", "pic3.png"];
 
   const featuredVehicles = [
@@ -56,7 +58,9 @@ function Index() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] ">
+    <div
+      className={`min-h-screen ${theme === "dark" ? "bg-[#0a0a0a]" : "bg-zinc-50"}`}
+    >
       <Banner images={images} />
 
       <div className="max-w-7xl mx-auto px-4 py-16">
@@ -65,7 +69,9 @@ function Index() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="flex items-center mb-10">
           <div className="w-1 h-8 bg-rose-600 mr-3"></div>
-          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white">
+          <h2
+            className={`text-3xl font-bold ${theme === "dark" ? "text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white" : "text-zinc-900"}`}
+          >
             Featured Vehicles
           </h2>
         </div>
@@ -74,7 +80,7 @@ function Index() {
           {featuredVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
-              className="bg-zinc-900 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] overflow-hidden hover-lift group"
+              className={`${theme === "dark" ? "bg-zinc-900" : "bg-white"} rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden hover-lift group`}
             >
               <div className="relative overflow-hidden">
                 <img
@@ -82,36 +88,66 @@ function Index() {
                   alt={vehicle.name}
                   className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
+                <div
+                  className={`absolute inset-0 bg-gradient-to-t ${theme === "dark" ? "from-zinc-900" : "from-zinc-100"} to-transparent opacity-60`}
+                ></div>
               </div>
 
               <div className="p-6">
-                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white mb-2">
+                <h3
+                  className={`text-xl font-bold ${theme === "dark" ? "text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white" : "text-zinc-900"} mb-2`}
+                >
                   {vehicle.name}
                 </h3>
-                <p className="text-zinc-400 mb-4">
+                <p
+                  className={`${theme === "dark" ? "text-zinc-400" : "text-zinc-600"} mb-4`}
+                >
                   Starting at ${vehicle.price.toLocaleString()}
                 </p>
 
                 <div className="grid grid-cols-3 gap-2 mb-6">
-                  <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-lg border border-zinc-700">
+                  <div
+                    className={`flex flex-col items-center p-2 ${theme === "dark" ? "bg-zinc-800 border-zinc-700" : "bg-zinc-100 border-zinc-200"} rounded-lg border`}
+                  >
                     <Zap className="h-4 w-4 text-rose-600 mb-1" />
-                    <span className="text-xs text-zinc-500">Power</span>
-                    <span className="text-sm font-semibold text-white">
+                    <span
+                      className={`text-xs ${theme === "dark" ? "text-zinc-500" : "text-zinc-600"}`}
+                    >
+                      Power
+                    </span>
+                    <span
+                      className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-zinc-900"}`}
+                    >
                       {vehicle.specs.power}
                     </span>
                   </div>
-                  <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-lg border border-zinc-700">
+                  <div
+                    className={`flex flex-col items-center p-2 ${theme === "dark" ? "bg-zinc-800 border-zinc-700" : "bg-zinc-100 border-zinc-200"} rounded-lg border`}
+                  >
                     <Clock className="h-4 w-4 text-rose-600 mb-1" />
-                    <span className="text-xs text-zinc-500">0-100</span>
-                    <span className="text-sm font-semibold text-white">
+                    <span
+                      className={`text-xs ${theme === "dark" ? "text-zinc-500" : "text-zinc-600"}`}
+                    >
+                      0-100
+                    </span>
+                    <span
+                      className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-zinc-900"}`}
+                    >
                       {vehicle.specs.acceleration}
                     </span>
                   </div>
-                  <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-lg border border-zinc-700">
+                  <div
+                    className={`flex flex-col items-center p-2 ${theme === "dark" ? "bg-zinc-800 border-zinc-700" : "bg-zinc-100 border-zinc-200"} rounded-lg border`}
+                  >
                     <Gauge className="h-4 w-4 text-rose-600 mb-1" />
-                    <span className="text-xs text-zinc-500">Top Speed</span>
-                    <span className="text-sm font-semibold text-white">
+                    <span
+                      className={`text-xs ${theme === "dark" ? "text-zinc-500" : "text-zinc-600"}`}
+                    >
+                      Top Speed
+                    </span>
+                    <span
+                      className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-zinc-900"}`}
+                    >
                       {vehicle.specs.topSpeed}
                     </span>
                   </div>
@@ -139,53 +175,77 @@ function Index() {
         </div>
       </div>
 
-      <div className="bg-zinc-900/50 py-16">
+      <div
+        className={`${theme === "dark" ? "bg-zinc-900/50" : "bg-zinc-100"} py-16`}
+      >
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white mb-4">
+            <h2
+              className={`text-3xl font-bold ${theme === "dark" ? "text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white" : "text-zinc-900"} mb-4`}
+            >
               Why Choose Luxury Automotive
             </h2>
-            <p className="text-zinc-400 max-w-2xl mx-auto">
+            <p
+              className={`${theme === "dark" ? "text-zinc-400" : "text-zinc-600"} max-w-2xl mx-auto`}
+            >
               Experience unparalleled luxury and performance with our exclusive
               collection of premium vehicles.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-lg hover-lift">
+            <div
+              className={`${theme === "dark" ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200"} p-6 rounded-xl border shadow-lg hover-lift`}
+            >
               <div className="w-12 h-12 bg-rose-900/20 rounded-full flex items-center justify-center mb-4">
                 <Award className="h-6 w-6 text-rose-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3
+                className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-zinc-900"} mb-2`}
+              >
                 Premium Selection
               </h3>
-              <p className="text-zinc-400">
+              <p
+                className={`${theme === "dark" ? "text-zinc-400" : "text-zinc-600"}`}
+              >
                 Our vehicles are hand-selected from the world's most prestigious
                 manufacturers to ensure exceptional quality.
               </p>
             </div>
 
-            <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-lg hover-lift">
+            <div
+              className={`${theme === "dark" ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200"} p-6 rounded-xl border shadow-lg hover-lift`}
+            >
               <div className="w-12 h-12 bg-rose-900/20 rounded-full flex items-center justify-center mb-4">
                 <Tool className="h-6 w-6 text-rose-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3
+                className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-zinc-900"} mb-2`}
+              >
                 Expert Maintenance
               </h3>
-              <p className="text-zinc-400">
+              <p
+                className={`${theme === "dark" ? "text-zinc-400" : "text-zinc-600"}`}
+              >
                 Our certified technicians provide comprehensive maintenance
                 services to keep your vehicle in peak condition.
               </p>
             </div>
 
-            <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-lg hover-lift">
+            <div
+              className={`${theme === "dark" ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200"} p-6 rounded-xl border shadow-lg hover-lift`}
+            >
               <div className="w-12 h-12 bg-rose-900/20 rounded-full flex items-center justify-center mb-4">
                 <Shield className="h-6 w-6 text-rose-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3
+                className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-zinc-900"} mb-2`}
+              >
                 Extended Warranty
               </h3>
-              <p className="text-zinc-400">
+              <p
+                className={`${theme === "dark" ? "text-zinc-400" : "text-zinc-600"}`}
+              >
                 Drive with confidence knowing your investment is protected by
                 our comprehensive warranty program.
               </p>
@@ -202,7 +262,9 @@ function Index() {
         }}
       ></div>
 
-      <div className="w-full bg-zinc-950 border-t border-zinc-800 py-8 relative overflow-hidden">
+      <div
+        className={`w-full ${theme === "dark" ? "bg-zinc-950 border-zinc-800" : "bg-zinc-900 border-zinc-700"} border-t py-8 relative overflow-hidden`}
+      >
         <div className="absolute inset-0 opacity-5">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -236,8 +298,8 @@ function Index() {
         </div>
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="text-center text-zinc-600 text-[18px]">
-            <p className="flex justify-center">
-              <Copyright />
+            <p className="flex justify-center items-center">
+              <Copyright className="mr-1" />
               {new Date().getFullYear()} Luxury Automotive. All rights reserved.
             </p>
             <p className="mt-2">

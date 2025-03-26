@@ -1,1 +1,46 @@
 @import "tailwindcss";
+
+:root {
+  --background-dark: #0a0a0a;
+  --text-dark: #ffffff;
+  --border-dark: #27272a;
+  --card-dark: #18181b;
+
+  --background-light: #f9fafb;
+  --text-light: #18181b;
+  --border-light: #e5e7eb;
+  --card-light: #ffffff;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Define light mode styles using CSS variables */
+@layer base {
+  :root {
+    --background-light: #f8f7f4;
+    --text-light: #18181b;
+    --border-light: #e5e2d9;
+    --card-light: #f1efe9;
+    --input-light: #e9e6de;
+    --input-border-light: #dcd8cc;
+    
+    --background: var(--background-light);
+    --foreground: var(--text-light);
+    --border: var(--border-light);
+    --card: var(--card-light);
+  }
+
+  .dark {
+    --background: var(--background-dark);
+    --foreground: var(--text-dark);
+    --border: var(--border-dark);
+    --card: var(--card-dark);
+  }
+}
+
