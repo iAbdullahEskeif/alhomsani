@@ -60,7 +60,6 @@ store_backend/venv/
 node_modules/
 /frontend/node_modules
 /store_frontend/node_modules
-/store_frontend/src/config.ts
 
 npm-debug.log*
 yarn-debug.log*
