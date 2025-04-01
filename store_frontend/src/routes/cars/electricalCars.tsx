@@ -73,7 +73,9 @@ function ElectricalCars() {
 				setIsLoading(true);
 				const response = await fetch(`${API_URL}/api/`, {
 					headers: {
+						method: "GET",
 						Authorization: `Bearer ${await getToken()}`,
+						"Content-Type": "application/json",
 					},
 				});
 				if (!response.ok) {
@@ -162,7 +164,9 @@ function ElectricalCars() {
 
 			const response = await fetch(`${API_URL}/api/`, {
 				headers: {
+					method: "POST",
 					Authorization: `Bearer ${await getToken()}`,
+					"Content-Type": "application/json",
 				},
 			});
 			if (!response.ok) {
