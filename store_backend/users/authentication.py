@@ -1,5 +1,6 @@
 
 import datetime
+import os
 from datetime import datetime
 import environ
 import jwt
@@ -13,10 +14,11 @@ from rest_framework.exceptions import AuthenticationFailed
 
 env = environ.Env()
 
-CLERK_API_URL = "https://api.clerk.com/v1"
-CLERK_FRONTEND_API_URL = env("CLERK_FRONTEND_API_URL")
-CLERK_SECRET_KEY = env("CLERK_SECRET_KEY")
+CLERK_API_URL = os.getenv('CLERK_FRONTEND_API_URL')
+CLERK_SECRET_KEY = os.getenv('CLERK_SECRET_KEY')
+CLERK_PUBLISHABLE_KEY = os.getenv('CLERK_PUBLISHABLE_KEY')
 CACHE_KEY = "jwks_data"
+
 
 
 class JWTAuthenticationMiddleware(BaseAuthentication):
@@ -94,7 +96,7 @@ class ClerkSDK:
     def get_jwks(self):
         jwks_data = cache.get(CACHE_KEY)
         if not jwks_data:
-            response = requests.get(f"{CLERK_FRONTEND_API_URL}/.well-known/jwks.json")
+            response = requests.get(f"{CLERK_PUBLISHABLE_KEY}/.well-known/jwks.json")
             if response.status_code == 200:
                 jwks_data = response.json()
                 cache.set(CACHE_KEY, jwks_data)  # cache indefinitely
