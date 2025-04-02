@@ -9,6 +9,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls', namespace='store')),
     path('api/', include('store_api.urls', namespace='store_api')),
-    path('api/users/', include('users.urls', namespace='users')),
+    #path('api/users/', include('users.urls', namespace='users')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

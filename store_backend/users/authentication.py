@@ -96,7 +96,7 @@ class ClerkSDK:
     def get_jwks(self):
         jwks_data = cache.get(CACHE_KEY)
         if not jwks_data:
-            response = requests.get(f"{CLERK_PUBLISHABLE_KEY}/.well-known/jwks.json")
+            response = requests.get(f"{CLERK_API_URL}/.well-known/jwks.json")
             if response.status_code == 200:
                 jwks_data = response.json()
                 cache.set(CACHE_KEY, jwks_data)  # cache indefinitely
