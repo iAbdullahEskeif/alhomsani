@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef, FormEvent, TouchEvent } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useRef, useEffect } from "react";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { API_URL } from "../../config";
 import { useAuth } from "@clerk/clerk-react";
 import {
 	ChevronLeft,
@@ -13,10 +15,8 @@ import {
 	FileText,
 	ImageIcon,
 	AlertCircle,
-	Zap,
-	Battery,
+	Gauge,
 } from "lucide-react";
-import { API_URL } from "../../config";
 
 interface Product {
 	id: number;
@@ -34,27 +34,25 @@ interface NewProduct {
 	name: string;
 	description: string;
 	price: string;
-	stock_quantity: string;
+	stock_quantity: number;
 	sku: string;
 	category: number;
 	availability: "in_stock" | "out_of_stock";
 	images: string;
 }
 
-// FIXME
-
 const isAdmin = (): boolean => {
 	return true;
 };
 
 function ElectricalCars() {
-	const [products, setProducts] = useState<Product[]>([]);
+	const queryClient = useQueryClient();
 	const [currentIndex, setCurrentIndex] = useState<number>(0);
 	const [newProduct, setNewProduct] = useState<NewProduct>({
 		name: "",
 		description: "",
 		price: "",
-		stock_quantity: "1",
+		stock_quantity: 1,
 		sku: "",
 		category: 1,
 		availability: "in_stock",
@@ -63,83 +61,146 @@ function ElectricalCars() {
 	const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
 	const [isAddButtonVisible, setIsAddButtonVisible] = useState<boolean>(true);
 	const [error, setError] = useState<string>("");
-	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const touchStartX = useRef<number | null>(null);
+
 	const { getToken } = useAuth();
-
-	useEffect(() => {
-		const fetchProducts = async () => {
-			try {
-				setIsLoading(true);
-				const response = await fetch(`${API_URL}/api/`, {
-					headers: {
-						method: "GET",
-						Authorization: `Bearer ${await getToken()}`,
-						"Content-Type": "application/json",
-					},
-				});
-				if (!response.ok) {
-					throw new Error("Failed to fetch products");
-				}
-				const data: Product[] = await response.json();
-				setProducts(data);
-			} catch (error: any) {
-				console.error("Error fetching products:", error);
-				setError("Error fetching products");
-			} finally {
-				setIsLoading(false);
+	const fetchProducts = async (productData: NewProduct): Promise<Product[]> => {
+		try {
+			const response = await fetch(`${API_URL}/api/`, {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${await getToken()}`,
+					"Content-Type": "application/json",
+				},
+			});
+			if (!response.ok) {
+				throw new Error("Failed to fetch products");
 			}
-		};
+			return await response.json();
+		} catch (error) {
+			console.error("Error fetching products:", error);
+			throw error;
+		}
+	};
 
-		fetchProducts();
-	}, []);
+	const createProduct = async (productData: NewProduct): Promise<Product> => {
+		try {
+			const response = await fetch(`${API_URL}/api/`, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${await getToken()}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(productData),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(errorData.detail || "Failed to create product");
+			}
+
+			return await response.json();
+		} catch (error) {
+			console.error("Error creating product:", error);
+			throw error;
+		}
+	};
+
+	const {
+		data: products = [],
+		isLoading,
+		isError,
+		error: queryError,
+	} = useQuery<Product[]>({
+		queryKey: ["products"],
+		queryFn: fetchProducts,
+		staleTime: 60000,
+	});
+
+	const addProductMutation = useMutation({
+		mutationFn: createProduct,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["products"] });
+
+			setNewProduct({
+				name: "",
+				description: "",
+				price: "",
+				stock_quantity: 1,
+				sku: "",
+				category: 1,
+				availability: "in_stock",
+				images: "",
+			});
+			setIsFormVisible(false);
+			setIsAddButtonVisible(true);
+			setError("");
+		},
+		onError: (error: Error) => {
+			setError(error.message || "Failed to add product. Please try again.");
+		},
+	});
 
 	useEffect(() => {
 		if (products.length > 0) {
 			const interval = setInterval(() => {
 				rotateProducts("next");
 			}, 5000);
+
 			return () => clearInterval(interval);
 		}
 	}, [currentIndex, products.length]);
 
 	const rotateProducts = (direction: "next" | "prev") => {
 		if (products.length === 0) return;
-		setCurrentIndex((prevIndex) =>
-			direction === "next"
-				? (prevIndex + 1) % products.length
-				: (prevIndex - 1 + products.length) % products.length,
-		);
+
+		setCurrentIndex((prevIndex) => {
+			if (direction === "next") {
+				return (prevIndex + 1) % products.length;
+			} else {
+				return (prevIndex - 1 + products.length) % products.length;
+			}
+		});
 	};
 
-	const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+	const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
 		touchStartX.current = e.touches[0].clientX;
 	};
 
-	const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
+	const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
 		if (touchStartX.current === null) return;
+
 		const touchEndX = e.changedTouches[0].clientX;
 		const diff = touchStartX.current - touchEndX;
+
 		if (Math.abs(diff) > 50) {
 			rotateProducts(diff > 0 ? "next" : "prev");
 		}
+
 		touchStartX.current = null;
 	};
 
 	const getVisibleProducts = (): Product[] => {
 		if (products.length === 0) return [];
+
 		const visibleProducts: Product[] = [];
-		visibleProducts.push(products[currentIndex]);
+
+		if (products.length > 0) {
+			visibleProducts.push(products[currentIndex]);
+		}
+
 		if (products.length > 1) {
 			visibleProducts.push(products[(currentIndex + 1) % products.length]);
 		}
+
 		if (products.length > 2) {
 			visibleProducts.push(products[(currentIndex + 2) % products.length]);
 		}
+
 		return visibleProducts;
 	};
 
-	const addProductHandler = async (e: FormEvent<HTMLFormElement>) => {
+	const addProduct = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 
@@ -150,45 +211,27 @@ function ElectricalCars() {
 				return;
 			}
 
-			const stockQuantity = Number.parseInt(newProduct.stock_quantity, 10);
+			const stockQuantity = Number.parseInt(
+				newProduct.stock_quantity.toString(),
+				10,
+			);
 			if (isNaN(stockQuantity) || stockQuantity < 0) {
 				setError("Stock quantity must be a non-negative integer.");
 				return;
 			}
 
-			const productToAdd = {
+			const productData: NewProduct = {
 				...newProduct,
 				price: priceFloat.toString(),
-				stock_quantity: stockQuantity.toString(),
+				stock_quantity: stockQuantity,
 			};
 
-			const response = await fetch(`${API_URL}/api/`, {
-				headers: {
-					method: "POST",
-					Authorization: `Bearer ${await getToken()}`,
-					"Content-Type": "application/json",
-				},
-			});
-			if (!response.ok) {
-				throw new Error("Failed to add product");
-			}
-			const data: Product = await response.json();
-			setProducts((prevProducts) => [...prevProducts, data]);
-			setNewProduct({
-				name: "",
-				description: "",
-				price: "",
-				stock_quantity: "1",
-				sku: "",
-				category: 1,
-				availability: "in_stock",
-				images: "",
-			});
-			setIsFormVisible(false);
-			setIsAddButtonVisible(true);
-		} catch (error: any) {
+			addProductMutation.mutate(productData);
+		} catch (error) {
 			console.error("Error adding product:", error);
-			setError(error.message || "Error adding product");
+			setError(
+				(error as Error).message || "Failed to add product. Please try again.",
+			);
 		}
 	};
 
@@ -240,12 +283,12 @@ function ElectricalCars() {
 					<div className="relative mb-8">
 						<div className="absolute -inset-0.5 bg-gradient-to-r from-rose-600 to-blue-600 rounded-xl blur opacity-75 transition duration-1000 animate-gradient-xy"></div>
 						<form
-							onSubmit={addProductHandler}
+							onSubmit={addProduct}
 							className="relative bg-zinc-900 p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-zinc-800"
 						>
 							<h3 className="text-xl font-bold text-white mb-6 flex items-center">
 								<div className="w-1 h-6 bg-rose-600 mr-2"></div>
-								Add New Electric Vehicle
+								Add New Vehicle
 							</h3>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -255,7 +298,7 @@ function ElectricalCars() {
 									</label>
 									<div className="relative">
 										<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-											<Zap className="h-5 w-5 text-zinc-500" />
+											<Gauge className="h-5 w-5 text-zinc-500" />
 										</div>
 										<input
 											type="text"
@@ -329,7 +372,7 @@ function ElectricalCars() {
 											onChange={(e) =>
 												setNewProduct({
 													...newProduct,
-													stock_quantity: e.target.value,
+													stock_quantity: Number(e.target.value),
 												})
 											}
 											required
@@ -357,7 +400,7 @@ function ElectricalCars() {
 											}
 											className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors appearance-none"
 										>
-											<option value={1}>Electric Vehicles</option>
+											<option value={1}>Default Category</option>
 										</select>
 									</div>
 								</div>
@@ -368,7 +411,7 @@ function ElectricalCars() {
 									</label>
 									<div className="relative">
 										<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-											<Battery className="h-5 w-5 text-zinc-500" />
+											<Package className="h-5 w-5 text-zinc-500" />
 										</div>
 										<select
 											value={newProduct.availability}
@@ -444,10 +487,15 @@ function ElectricalCars() {
 								</button>
 								<button
 									type="submit"
-									className="bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-lg shadow-rose-600/20 flex items-center"
+									className={`${
+										addProductMutation.isPending
+											? "bg-rose-800 cursor-not-allowed"
+											: "bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600"
+									} text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-lg shadow-rose-600/20 flex items-center`}
+									disabled={addProductMutation.isPending}
 								>
 									<Plus className="mr-1 h-4 w-4" />
-									Add Product
+									{addProductMutation.isPending ? "Adding..." : "Add Product"}
 								</button>
 							</div>
 						</form>
@@ -458,6 +506,20 @@ function ElectricalCars() {
 					<div className="w-full p-8 text-center">
 						<div className="inline-block w-12 h-12 border-4 border-zinc-700 border-t-rose-600 rounded-full animate-spin"></div>
 						<p className="mt-4 text-zinc-400">Loading vehicles...</p>
+					</div>
+				) : isError ? (
+					<div className="w-full p-6 bg-zinc-900 border border-rose-900/50 rounded-lg shadow-lg">
+						<div className="flex items-start">
+							<AlertCircle className="text-rose-500 mr-3 flex-shrink-0" />
+							<div>
+								<h3 className="text-rose-500 font-semibold mb-1">
+									Failed to load vehicles
+								</h3>
+								<p className="text-zinc-400">
+									{queryError?.message || "Unknown error"}
+								</p>
+							</div>
+						</div>
 					</div>
 				) : products.length > 0 ? (
 					<>
@@ -515,7 +577,7 @@ function ElectricalCars() {
 
 											<div className="mt-auto">
 												<Link
-													to="/cars/electricalCars"
+													to="/cars/productDetail"
 													className="w-full inline-block text-center bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-lg shadow-rose-600/20"
 												>
 													View Details
@@ -547,11 +609,9 @@ function ElectricalCars() {
 				) : (
 					<div className="text-center py-12 bg-zinc-900 rounded-lg border border-zinc-800 shadow-lg">
 						<div className="w-16 h-16 mx-auto mb-4 opacity-20">
-							<Zap className="w-full h-full text-rose-500" />
+							<Gauge className="w-full h-full text-rose-500" />
 						</div>
-						<p className="text-zinc-400">
-							No electric vehicles available at this time.
-						</p>
+						<p className="text-zinc-400">No vehicles available at this time.</p>
 						<p className="text-zinc-500 text-sm mt-2">
 							Check back later for our exclusive collection.
 						</p>
