@@ -20,6 +20,12 @@ class Product(models.Model):
         ('out_of_stock', 'Out of Stock')
     )
 
+    car_type_choices = (
+        ('classic', 'Classic'),
+        ('electrical', 'Electrical'),
+        ('luxury', 'Luxury')
+    )
+
     category = models.ForeignKey(Category, on_delete=models.PROTECT, default=1)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
@@ -30,6 +36,9 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     availability = models.CharField(
         max_length=20, choices=availability_choices, default='in_stock')
+    car_type = models.CharField(
+        max_length=20, choices=car_type_choices, default='classic'
+    )  # New field
     images = models.URLField()
     objects = models.Manager()  # Default manager
     productobjects = ProductObjects()  # Custom manager
@@ -38,4 +47,4 @@ class Product(models.Model):
         ordering = ['-created_at']
 
     def __str__(self) -> str:
-        return self.name
+        return f"{self.name} - {self.car_type}"

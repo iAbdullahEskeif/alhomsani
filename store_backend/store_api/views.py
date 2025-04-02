@@ -17,3 +17,12 @@ class ProductDetail(generics.RetrieveDestroyAPIView):
 class ProductList(generics.ListCreateAPIView):
     queryset=Product.objects.filter(availability='in_stock')
     serializer_class=ProductSerializer 
+
+class FilteredProductListView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        car_type = self.request.query_params.get('car_type')
+        if car_type:
+            return Product.objects.filter(car_type=car_type)
+        return Product.objects.all()
