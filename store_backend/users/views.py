@@ -1,4 +1,4 @@
-from rest_framework_simplejwt.views import TokenObtainPairView
+'''from rest_framework_simplejwt.views import TokenObtainPairView
 from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
@@ -35,3 +35,4 @@ class BlacklistTokenUpdateView(APIView):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
 
+'''

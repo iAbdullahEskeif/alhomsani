@@ -7,7 +7,6 @@
 shared.env
 create_project.sh
 setup.sh
-store_frontend/src/config.ts
 store_frontend/.env
 store_backend/.env
 
