@@ -1,8 +1,8 @@
 from rest_framework import authentication
 from rest_framework import exceptions
 from django.conf import settings
-from clerk_sdk_python import Clerk
-from .models import NewUser
+#from clerk_sdk_python import Clerk
+#from .models import NewUser
 
 class ClerkAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):

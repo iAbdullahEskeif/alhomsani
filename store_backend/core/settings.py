@@ -6,11 +6,15 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+CLERK_PUBLISHABLE_KEY = os.getenv("CLERK_PUBLISHABLE_KEY")
+CLERK_API_URL = os.getenv("CLERK_FRONTEND_API_URL")
+if not CLERK_API_URL:
+    raise ValueError("CLERK_API_URL is not set in the environment variables!")
+# Ensure the URL starts with "https://"
+if not CLERK_API_URL.startswith("http"):
+    CLERK_API_URL = f"https://{CLERK_API_URL}"
+
 CLERK_SECRET_KEY = os.getenv('CLERK_SECRET_KEY')
-CLERK_PUBLISHABLE_KEY = os.getenv('CLERK_PUBLISHABLE_KEY')
-CLERK_API_URL = os.getenv('CLERK_FRONTEND_API_URL')
-CLERK_SECRET_KEY = os.getenv('CLERK_SECRET_KEY')
-CLERK_PUBLISHABLE_KEY = os.getenv('CLERK_PUBLISHABLE_KEY')
 CACHE_KEY = "jwks_data"
 
 
@@ -116,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'users.NewUser'
+#AUTH_USER_MODEL = 'users.NewUser'
 
 
 # Internationalization
@@ -152,10 +156,22 @@ REST_FRAMEWORK = {
     ],
 }
 
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "method",  # Add this line
+]
 
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:5173').split(',')
-CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', 'http://localhost:5173').split(',')
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', "http://localhost:5173").split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', "http://localhost:5173").split(',')
+CORS_ALLOW_CREDENTIALS = os.getenv('CORS_ALLOW_CREDENTIALS', 'True') == 'True'
+CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL', 'False') == 'True'  # Set False to use `CORS_ALLOWED_ORIGINS`
+
 
 # Security Settings
 CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False') == 'True'
