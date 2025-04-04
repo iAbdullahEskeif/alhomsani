@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'store_api.apps.StoreApiConfig',
     'users.apps.UsersConfig',
+    'Profiles.apps.ProfilesConfig',
     'rest_framework',
     'corsheaders',
 

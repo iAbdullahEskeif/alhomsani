@@ -1,4 +1,4 @@
-from rest_framework import authentication
+'''from rest_framework import authentication
 from rest_framework import exceptions
 from django.conf import settings
 #from clerk_sdk_python import Clerk
@@ -35,4 +35,4 @@ class ClerkAuthentication(authentication.BaseAuthentication):
             return (user, None)
             
         except Exception as e:
-            raise exceptions.AuthenticationFailed('Invalid token') 
+            raise exceptions.AuthenticationFailed('Invalid token') '''
