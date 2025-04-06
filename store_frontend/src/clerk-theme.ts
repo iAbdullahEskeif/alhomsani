@@ -1,6 +1,7 @@
 // Clerk appearance configuration to match the dark theme with rose accents
+import { dark } from "@clerk/themes";
 export const clerkAppearance = {
-  baseTheme: "dark",
+  baseTheme: [dark],
   variables: {
     colorPrimary: "#f43f5e", // rose-500
     colorText: "white",
