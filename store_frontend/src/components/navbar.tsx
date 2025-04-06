@@ -1,20 +1,13 @@
 import type React from "react";
 
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Menu, X, LogOut, LogIn, Home, Info, Mail, Gauge } from "lucide-react";
-import {
-  useAuth,
-  useUser,
-  SignInButton,
-  SignOutButton,
-} from "@clerk/clerk-react";
+import { useAuth, SignInButton, SignOutButton } from "@clerk/clerk-react";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const navigate = useNavigate();
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -72,7 +65,7 @@ const Navbar: React.FC = () => {
           </li>
           <li>
             {isSignedIn ? (
-              <SignOutButton signOutCallback={() => navigate({ to: "/" })}>
+              <SignOutButton redirectUrl="/">
                 <button className="flex items-center px-4 py-1.5 rounded-lg transition-all duration-200 shadow-sm bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600">
                   <LogOut className="mr-1 h-4 w-4" />
                   Logout
@@ -129,7 +122,7 @@ const Navbar: React.FC = () => {
             </li>
             <li>
               {isSignedIn ? (
-                <SignOutButton signOutCallback={() => navigate({ to: "/" })}>
+                <SignOutButton redirectUrl="/">
                   <button
                     onClick={() => setIsMenuOpen(false)}
                     className="w-full flex items-center p-4 text-white bg-rose-700/20 hover:bg-rose-700/30 transition-colors"
