@@ -18,6 +18,19 @@ import {
   Gauge,
 } from "lucide-react";
 
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 interface Product {
   id: number;
   name: string;
@@ -153,7 +166,7 @@ function ElectricalCars() {
         }
       });
     },
-    [products.length], // Dependency array for useCallback
+    [products.length],
   );
 
   useEffect(() => {
@@ -164,7 +177,7 @@ function ElectricalCars() {
 
       return () => clearInterval(interval);
     }
-  }, [rotateProducts, products.length]); // Dependency array for useEffect
+  }, [rotateProducts, products.length]);
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     touchStartX.current = e.touches[0].clientX;
@@ -253,277 +266,286 @@ function ElectricalCars() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] ">
+    <div className="min-h-screen bg-zinc-950">
       <div className="w-full max-w-6xl mx-auto p-4">
-        <div className="flex items-center mb-6">
-          <div className="w-1 h-8 bg-rose-600 mr-3"></div>
-          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white">
-            Electrical Cars
-          </h2>
-        </div>
+        <h2 className="text-3xl font-medium text-white mb-6">
+          Electrical Cars
+        </h2>
 
         {error && (
-          <div className="mb-6 p-3 bg-zinc-800/50 border border-rose-900/50 rounded-lg flex items-start">
+          <div className="mb-6 p-3 bg-zinc-800 border border-zinc-700 rounded-lg flex items-start">
             <AlertCircle
-              className="text-rose-500 mr-2 flex-shrink-0 mt-0.5"
+              className="text-zinc-400 mr-2 flex-shrink-0 mt-0.5"
               size={18}
             />
-            <p className="text-rose-500 text-sm">{error}</p>
+            <p className="text-zinc-300 text-sm">{error}</p>
           </div>
         )}
 
         {isAdmin() && isAddButtonVisible && (
-          <button
+          <Button
             onClick={handleAddProductClick}
-            className="bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 mb-6 flex items-center"
+            variant="secondary"
+            className="mb-6 bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-2 size-4" />
             Add Product
-          </button>
+          </Button>
         )}
 
         {isFormVisible && (
-          <div className="relative mb-8">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-rose-600 to-blue-600 rounded-xl blur opacity-75 transition duration-1000 animate-gradient-xy"></div>
-            <form
-              onSubmit={addProduct}
-              className="relative bg-zinc-900 p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-zinc-800"
-            >
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center">
-                <div className="w-1 h-6 bg-rose-600 mr-2"></div>
+          <Card className="mb-8 bg-zinc-900 border-zinc-800 shadow-md">
+            <CardContent className="p-6">
+              <h3 className="text-xl font-medium text-white mb-6">
                 Add New Vehicle
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-zinc-400 mb-2 text-sm">
-                    Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Gauge className="h-5 w-5 text-zinc-500" />
+              <form onSubmit={addProduct} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <Label htmlFor="name" className="text-zinc-400">
+                      Name
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Gauge className="size-5 text-zinc-500" />
+                      </div>
+                      <Input
+                        id="name"
+                        value={newProduct.name}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, name: e.target.value })
+                        }
+                        required
+                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                        placeholder="Enter vehicle name"
+                      />
                     </div>
-                    <input
-                      type="text"
-                      value={newProduct.name}
-                      onChange={(e) =>
-                        setNewProduct({ ...newProduct, name: e.target.value })
-                      }
-                      required
-                      className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
-                      placeholder="Enter vehicle name"
-                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="sku" className="text-zinc-400">
+                      SKU
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Tag className="size-5 text-zinc-500" />
+                      </div>
+                      <Input
+                        id="sku"
+                        value={newProduct.sku}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, sku: e.target.value })
+                        }
+                        required
+                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                        placeholder="Enter SKU"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="price" className="text-zinc-400">
+                      Price
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <DollarSign className="size-5 text-zinc-500" />
+                      </div>
+                      <Input
+                        id="price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={newProduct.price}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            price: e.target.value,
+                          })
+                        }
+                        required
+                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                        placeholder="Enter price"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="stock" className="text-zinc-400">
+                      Stock Quantity
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Package className="size-5 text-zinc-500" />
+                      </div>
+                      <Input
+                        id="stock"
+                        type="number"
+                        min="0"
+                        value={newProduct.stock_quantity}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            stock_quantity: Number(e.target.value),
+                          })
+                        }
+                        required
+                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                        placeholder="Enter stock quantity"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="category" className="text-zinc-400">
+                      Category
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Layers className="size-5 text-zinc-500" />
+                      </div>
+                      <Select
+                        value={newProduct.category.toString()}
+                        onValueChange={(value) =>
+                          setNewProduct({
+                            ...newProduct,
+                            category: Number.parseInt(value),
+                          })
+                        }
+                      >
+                        <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+                          <SelectItem value="1">Default Category</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="availability" className="text-zinc-400">
+                      Availability
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Package className="size-5 text-zinc-500" />
+                      </div>
+                      <Select
+                        value={newProduct.availability}
+                        onValueChange={(value) =>
+                          setNewProduct({
+                            ...newProduct,
+                            availability: value as "in_stock" | "out_of_stock",
+                          })
+                        }
+                      >
+                        <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                          <SelectValue placeholder="Select availability" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+                          <SelectItem value="in_stock">In Stock</SelectItem>
+                          <SelectItem value="out_of_stock">
+                            Out of Stock
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-zinc-400 mb-2 text-sm">
-                    SKU
-                  </label>
+                  <Label htmlFor="description" className="text-zinc-400">
+                    Description
+                  </Label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Tag className="h-5 w-5 text-zinc-500" />
+                    <div className="absolute top-3 left-3 flex items-start pointer-events-none">
+                      <FileText className="size-5 text-zinc-500" />
                     </div>
-                    <input
-                      type="text"
-                      value={newProduct.sku}
-                      onChange={(e) =>
-                        setNewProduct({ ...newProduct, sku: e.target.value })
-                      }
-                      required
-                      className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
-                      placeholder="Enter SKU"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-zinc-400 mb-2 text-sm">
-                    Price
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-5 w-5 text-zinc-500" />
-                    </div>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={newProduct.price}
-                      onChange={(e) =>
-                        setNewProduct({ ...newProduct, price: e.target.value })
-                      }
-                      required
-                      className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
-                      placeholder="Enter price"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-zinc-400 mb-2 text-sm">
-                    Stock Quantity
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Package className="h-5 w-5 text-zinc-500" />
-                    </div>
-                    <input
-                      type="number"
-                      min="0"
-                      value={newProduct.stock_quantity}
+                    <Textarea
+                      id="description"
+                      value={newProduct.description}
                       onChange={(e) =>
                         setNewProduct({
                           ...newProduct,
-                          stock_quantity: Number(e.target.value),
+                          description: e.target.value,
                         })
                       }
-                      required
-                      className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
-                      placeholder="Enter stock quantity"
+                      className="pl-10 bg-zinc-800 border-zinc-700 text-white min-h-[120px]"
+                      placeholder="Enter vehicle description"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-zinc-400 mb-2 text-sm">
-                    Category
-                  </label>
+                  <Label htmlFor="image" className="text-zinc-400">
+                    Image URL
+                  </Label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Layers className="h-5 w-5 text-zinc-500" />
+                      <ImageIcon className="size-5 text-zinc-500" />
                     </div>
-                    <select
-                      value={newProduct.category}
+                    <Input
+                      id="image"
+                      type="url"
+                      value={newProduct.images}
                       onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          category: Number.parseInt(e.target.value),
-                        })
+                        setNewProduct({ ...newProduct, images: e.target.value })
                       }
-                      className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors appearance-none"
-                    >
-                      <option value={1}>Default Category</option>
-                    </select>
+                      required
+                      className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                      placeholder="Enter image URL"
+                    />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-zinc-400 mb-2 text-sm">
-                    Availability
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Package className="h-5 w-5 text-zinc-500" />
-                    </div>
-                    <select
-                      value={newProduct.availability}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          availability: e.target.value as
-                            | "in_stock"
-                            | "out_of_stock",
-                        })
-                      }
-                      className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors appearance-none"
-                    >
-                      <option value="in_stock">In Stock</option>
-                      <option value="out_of_stock">Out of Stock</option>
-                    </select>
-                  </div>
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    className="border-zinc-700 text-rose-600 hover:bg-zinc-800 hover:text-white"
+                  >
+                    <X className="mr-1 size-4" />
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    disabled={addProductMutation.isPending}
+                    className="bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+                  >
+                    <Plus className="mr-1 size-4" />
+                    {addProductMutation.isPending ? "Adding..." : "Add Product"}
+                  </Button>
                 </div>
-              </div>
-
-              <div className="mt-5">
-                <label className="block text-zinc-400 mb-2 text-sm">
-                  Description
-                </label>
-                <div className="relative">
-                  <div className="absolute top-3 left-3 flex items-start pointer-events-none">
-                    <FileText className="h-5 w-5 text-zinc-500" />
-                  </div>
-                  <textarea
-                    value={newProduct.description}
-                    onChange={(e) =>
-                      setNewProduct({
-                        ...newProduct,
-                        description: e.target.value,
-                      })
-                    }
-                    className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
-                    rows={3}
-                    placeholder="Enter vehicle description"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-5">
-                <label className="block text-zinc-400 mb-2 text-sm">
-                  Image URL
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <ImageIcon className="h-5 w-5 text-zinc-500" />
-                  </div>
-                  <input
-                    type="url"
-                    value={newProduct.images}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, images: e.target.value })
-                    }
-                    required
-                    className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
-                    placeholder="Enter image URL"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="bg-zinc-800 border border-zinc-700 text-white px-4 py-2 rounded-lg hover:bg-zinc-700 transition-colors mr-3 flex items-center"
-                >
-                  <X className="mr-1 h-4 w-4" />
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className={`${
-                    addProductMutation.isPending
-                      ? "bg-rose-800 cursor-not-allowed"
-                      : "bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600"
-                  } text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-lg shadow-rose-600/20 flex items-center`}
-                  disabled={addProductMutation.isPending}
-                >
-                  <Plus className="mr-1 h-4 w-4" />
-                  {addProductMutation.isPending ? "Adding..." : "Add Product"}
-                </button>
-              </div>
-            </form>
-          </div>
+              </form>
+            </CardContent>
+          </Card>
         )}
 
         {isLoading ? (
           <div className="w-full p-8 text-center">
-            <div className="inline-block w-12 h-12 border-4 border-zinc-700 border-t-rose-600 rounded-full animate-spin"></div>
+            <div className="inline-block w-12 h-12 border-4 border-zinc-700 border-t-zinc-400 rounded-full animate-spin"></div>
             <p className="mt-4 text-zinc-400">Loading vehicles...</p>
           </div>
         ) : isError ? (
-          <div className="w-full p-6 bg-zinc-900 border border-rose-900/50 rounded-lg shadow-lg">
-            <div className="flex items-start">
-              <AlertCircle className="text-rose-500 mr-3 flex-shrink-0" />
-              <div>
-                <h3 className="text-rose-500 font-semibold mb-1">
-                  Failed to load vehicles
-                </h3>
-                <p className="text-zinc-400">
-                  {queryError?.message || "Unknown error"}
-                </p>
+          <Card className="bg-zinc-900 border-zinc-800 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-start">
+                <AlertCircle className="text-zinc-400 mr-3 flex-shrink-0" />
+                <div>
+                  <h3 className="text-zinc-300 font-medium mb-1">
+                    Failed to load vehicles
+                  </h3>
+                  <p className="text-zinc-400">
+                    {queryError?.message || "Unknown error"}
+                  </p>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ) : products.length > 0 ? (
           <>
             <div
@@ -536,27 +558,28 @@ function ElectricalCars() {
                   key={product.id}
                   className="w-1/3 p-4 transition-all duration-500 ease-in-out"
                 >
-                  <div className="bg-zinc-900 rounded-lg border border-zinc-800 shadow-[0_10px_30px_rgba(0,0,0,0.3)] overflow-hidden h-full flex flex-col hover-lift">
+                  <Card className="bg-zinc-900 border-zinc-800 shadow-md overflow-hidden h-full flex flex-col hover:border-zinc-700 transition-all duration-300">
                     <div className="relative overflow-hidden bg-zinc-900">
                       <img
                         src={
                           product.images ||
-                          "/placeholder.svg?height=200&width=300"
+                          "/placeholder.svg?height=200&width=300" ||
+                          "/placeholder.svg"
                         }
                         alt={product.name}
-                        className="w-full h-48 object-cover transition-transform duration-700 hover:scale-110"
+                        className="w-full h-48 object-cover transition-transform duration-700 hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
                     </div>
-                    <div className="p-5 flex-grow bg-zinc-900">
-                      <h3 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white mb-3">
+                    <CardContent className="p-5 flex-grow bg-zinc-900">
+                      <h3 className="text-xl font-medium text-white mb-3">
                         {product.name}
                       </h3>
 
                       <div className="space-y-2 mb-4">
                         <div className="flex justify-between pb-2 border-b border-zinc-800">
                           <span className="text-zinc-500">Price</span>
-                          <span className="font-medium text-rose-500">
+                          <span className="font-medium text-white">
                             {formatPrice(product.price)}
                           </span>
                         </div>
@@ -569,7 +592,7 @@ function ElectricalCars() {
                         <div className="flex justify-between pb-2 border-b border-zinc-800">
                           <span className="text-zinc-500">Status</span>
                           <span
-                            className={`font-medium ${product.availability === "in_stock" ? "text-emerald-500" : "text-rose-500"}`}
+                            className={`font-medium ${product.availability === "in_stock" ? "text-emerald-500" : "text-zinc-400"}`}
                           >
                             {product.availability === "in_stock"
                               ? "In Stock"
@@ -579,46 +602,55 @@ function ElectricalCars() {
                       </div>
 
                       <div className="mt-auto">
-                        <Link
-                          to="/cars/productDetail"
-                          className="w-full inline-block text-center bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-lg shadow-rose-600/20"
+                        <Button
+                          asChild
+                          variant="secondary"
+                          className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
                         >
-                          View Details
-                        </Link>
+                          <Link to="/cars/productDetail">View Details</Link>
+                        </Button>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
               ))}
             </div>
 
             <div className="flex justify-center mt-8">
-              <button
+              <Button
                 onClick={() => rotateProducts("prev")}
-                className="bg-zinc-800 border border-zinc-700 text-white p-3 rounded-full mr-4 hover:bg-zinc-700 transition-colors shadow-lg"
+                variant="outline"
+                size="icon"
+                className="rounded-full mr-4 border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
                 aria-label="Previous"
               >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
+                <ChevronLeft className="size-5" />
+              </Button>
+              <Button
                 onClick={() => rotateProducts("next")}
-                className="bg-zinc-800 border border-zinc-700 text-white p-3 rounded-full hover:bg-zinc-700 transition-colors shadow-lg"
+                variant="outline"
+                size="icon"
+                className="rounded-full border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
                 aria-label="Next"
               >
-                <ChevronRight className="h-5 w-5" />
-              </button>
+                <ChevronRight className="size-5" />
+              </Button>
             </div>
           </>
         ) : (
-          <div className="text-center py-12 bg-zinc-900 rounded-lg border border-zinc-800 shadow-lg">
-            <div className="w-16 h-16 mx-auto mb-4 opacity-20">
-              <Gauge className="w-full h-full text-rose-500" />
-            </div>
-            <p className="text-zinc-400">No vehicles available at this time.</p>
-            <p className="text-zinc-500 text-sm mt-2">
-              Check back later for our exclusive collection.
-            </p>
-          </div>
+          <Card className="bg-zinc-900 border-zinc-800 shadow-md text-center py-12">
+            <CardContent>
+              <div className="w-16 h-16 mx-auto mb-4 opacity-20">
+                <Gauge className="w-full h-full text-zinc-500" />
+              </div>
+              <p className="text-zinc-400">
+                No vehicles available at this time.
+              </p>
+              <p className="text-zinc-500 text-sm mt-2">
+                Check back later for our exclusive collection.
+              </p>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
