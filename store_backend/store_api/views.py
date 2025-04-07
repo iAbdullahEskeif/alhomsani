@@ -4,6 +4,7 @@ from store.models import Product
 from .serializers import ProductSerializer
 from rest_framework.permissions import IsAdminUser,IsAuthenticatedOrReadOnly,DjangoModelPermissions
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly,BasePermission,SAFE_METHODS
+from drf_spectacular.utils import extend_schema,OpenApiParameter
  
       
       
@@ -18,6 +19,12 @@ class ProductList(generics.ListCreateAPIView):
     queryset=Product.objects.filter(availability='in_stock')
     serializer_class=ProductSerializer 
 
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name='car_type', description='Search car by type', required=False, type=str),
+    ]
+)
 class FilteredProductListView(generics.ListAPIView):
     serializer_class = ProductSerializer
 

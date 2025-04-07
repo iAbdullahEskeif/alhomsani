@@ -3,6 +3,7 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
+import drf_yasg 
 
 # Load environment variables from .env file
 load_dotenv()
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'Profiles.apps.ProfilesConfig',
     'rest_framework',
     'corsheaders',
+    'drf_spectacular',
 
 ]
 
@@ -72,7 +74,9 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR/'templates'],
+        'DIRS': [BASE_DIR/'templates',
+                 os.path.join(BASE_DIR, 'templates'),
+            os.path.join(os.path.dirname(drf_yasg.__file__), 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,9 +91,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -155,6 +156,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
+      'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+SPECTACULAR_SETTINGS={
+    "TITLE":"Django DRF Alhomsani",
+
 }
 
 CORS_ALLOW_HEADERS = [
