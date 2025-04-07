@@ -11,5 +11,5 @@ urlpatterns = [
     path('api/', include('store_api.urls', namespace='store_api')),
     #path('api/users/', include('users.urls', namespace='users')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('profiles',include('Profiles.urls',namespace='profiles'))
+    path('profiles/',include('Profiles.urls',namespace='profiles'))
 ]
