@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from store.models import Product
 from .serializers import ProductSerializer
-from rest_framework.permissions import IsAdminUser,IsAuthenticatedOrReadOnly,DjangoModelPermissions
+from rest_framework.permissions import IsAdminUser,IsAuthenticatedOrReadOnly,DjangoModelPermissions,IsAuthenticated
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly,BasePermission,SAFE_METHODS
 from drf_spectacular.utils import extend_schema,OpenApiParameter
  
@@ -16,6 +16,7 @@ class ProductDetail(generics.RetrieveDestroyAPIView):
    
 
 class ProductList(generics.ListCreateAPIView):
+    permission_classes=[IsAuthenticated]
     queryset=Product.objects.filter(availability='in_stock')
     serializer_class=ProductSerializer 
 

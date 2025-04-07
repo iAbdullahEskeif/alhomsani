@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ProfileImport } from './routes/profile'
 import { Route as ContactImport } from './routes/contact'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
@@ -20,6 +21,12 @@ import { Route as CarsElectricalCarsImport } from './routes/cars/electricalCars'
 import { Route as CarsClassicCarsImport } from './routes/cars/classicCars'
 
 // Create/Update Routes
+
+const ProfileRoute = ProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const ContactRoute = ContactImport.update({
   id: '/contact',
@@ -88,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactImport
       parentRoute: typeof rootRoute
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileImport
+      parentRoute: typeof rootRoute
+    }
     '/cars/classicCars': {
       id: '/cars/classicCars'
       path: '/cars/classicCars'
@@ -125,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/profile': typeof ProfileRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
@@ -135,6 +150,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/profile': typeof ProfileRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
@@ -146,6 +162,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/profile': typeof ProfileRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
@@ -158,6 +175,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/profile'
     | '/cars/classicCars'
     | '/cars/electricalCars'
     | '/cars/luxuryCars'
@@ -167,6 +185,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/profile'
     | '/cars/classicCars'
     | '/cars/electricalCars'
     | '/cars/luxuryCars'
@@ -176,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/profile'
     | '/cars/classicCars'
     | '/cars/electricalCars'
     | '/cars/luxuryCars'
@@ -187,6 +207,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  ProfileRoute: typeof ProfileRoute
   CarsClassicCarsRoute: typeof CarsClassicCarsRoute
   CarsElectricalCarsRoute: typeof CarsElectricalCarsRoute
   CarsLuxuryCarsRoute: typeof CarsLuxuryCarsRoute
@@ -197,6 +218,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  ProfileRoute: ProfileRoute,
   CarsClassicCarsRoute: CarsClassicCarsRoute,
   CarsElectricalCarsRoute: CarsElectricalCarsRoute,
   CarsLuxuryCarsRoute: CarsLuxuryCarsRoute,
@@ -216,6 +238,7 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/contact",
+        "/profile",
         "/cars/classicCars",
         "/cars/electricalCars",
         "/cars/luxuryCars",
@@ -230,6 +253,9 @@ export const routeTree = rootRoute
     },
     "/contact": {
       "filePath": "contact.tsx"
+    },
+    "/profile": {
+      "filePath": "profile.tsx"
     },
     "/cars/classicCars": {
       "filePath": "cars/classicCars.tsx"
