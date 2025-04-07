@@ -20,7 +20,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from .models import Profile, ActivityLog
 from store.models import Product
-from .serializers import ProfileSerializer, ActivityLogSerializer
+from .serializers import ProfileSerializer, ActivityLogSerializer,DummyFavoriteSerializer
 
 class IsOwnerOfProfile(permissions.BasePermission):
 
@@ -31,6 +31,7 @@ class IsOwnerOfProfile(permissions.BasePermission):
 
 
 class AddToFavoritesView(generics.UpdateAPIView):
+    serializer_class=DummyFavoriteSerializer
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
@@ -49,6 +50,7 @@ class AddToFavoritesView(generics.UpdateAPIView):
 
 
 class RemoveFromFavoritesView(generics.UpdateAPIView):
+    serializer_class=DummyFavoriteSerializer
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
@@ -63,6 +65,7 @@ class RemoveFromFavoritesView(generics.UpdateAPIView):
 
 
 class AddToBookmarksView(generics.UpdateAPIView):
+    serializer_class=DummyFavoriteSerializer
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
@@ -81,6 +84,7 @@ class AddToBookmarksView(generics.UpdateAPIView):
 
 
 class RemoveFromBookmarksView(generics.UpdateAPIView):
+    serializer_class=DummyFavoriteSerializer
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):

@@ -40,3 +40,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'name', 'location', 'contact_info', 'bio', 'profile_picture', 
                   'favorite_cars', 'bookmarked_cars', 'activity_log', 'member_since']
         read_only_fields = ['user', 'member_since']
+
+class DummyFavoriteSerializer(serializers.Serializer):
+    car_id = serializers.IntegerField()
+
+    
