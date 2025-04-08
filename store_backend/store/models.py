@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-
+from cloudinary.models import CloudinaryField
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -38,8 +38,9 @@ class Product(models.Model):
         max_length=20, choices=availability_choices, default='in_stock')
     car_type = models.CharField(
         max_length=20, choices=car_type_choices, default='classic'
-    )  # New field
-    images = models.URLField()
+    )  
+    image_url =  models.URLField(blank=True, null=True) 
+    image_public_id = models.CharField(max_length=255, blank=True, null=True)  
     objects = models.Manager()  # Default manager
     productobjects = ProductObjects()  # Custom manager
 

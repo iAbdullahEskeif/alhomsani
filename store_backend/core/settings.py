@@ -5,6 +5,11 @@ from datetime import timedelta
 from dotenv import load_dotenv
 import drf_yasg 
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from cloudinary.utils import cloudinary_url
+
 # Load environment variables from .env file
 load_dotenv()
 CLERK_PUBLISHABLE_KEY = os.getenv("CLERK_PUBLISHABLE_KEY")
@@ -51,6 +56,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_spectacular',
+    'cloudinary',
+    'cloudinary_storage',
 
 ]
 
@@ -198,4 +205,14 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+
 #flag
+
+
+cloudinary.config(
+    cloud_name=os.getenv('cloud_name'),
+    api_key= os.getenv('api_key'),
+    api_secret=os.getenv('api_secret'),
+    secure=True,
+
+)
