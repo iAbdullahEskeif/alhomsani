@@ -146,18 +146,6 @@ function ProfilePage() {
                                 </Link>
                             )}
 
-                            {isLoggedInView && (
-                                <div className="flex gap-2">
-                                    <button className="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1.5 rounded-lg text-sm">
-                                        <MessageSquare className="h-3.5 w-3.5" />
-                                        Message
-                                    </button>
-                                    <button className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-sm">
-                                        <UserPlus className="h-3.5 w-3.5" />
-                                        Follow
-                                    </button>
-                                </div>
-                            )}
 
                             {isGuestView && (
                                 <Link
