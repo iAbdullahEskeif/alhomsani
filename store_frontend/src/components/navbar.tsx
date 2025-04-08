@@ -1,10 +1,18 @@
-"use client";
-
 import type React from "react";
 
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X, LogOut, LogIn, Home, Info, Mail, Gauge } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  LogIn,
+  Home,
+  Info,
+  Mail,
+  Gauge,
+  User,
+} from "lucide-react";
 import { useAuth, SignInButton, SignOutButton } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -91,6 +99,17 @@ const Navbar: React.FC = () => {
                     <Mail className="mr-3 size-5" />
                     Contact
                   </Link>
+                  {isSignedIn && (
+                    <Link
+                      to="/profile"
+                      className="flex items-center p-3 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                      activeProps={{ className: "bg-zinc-800 text-white" }}
+                    >
+                      <User className="mr-3 size-5" />
+                      Profile
+                    </Link>
+                  )}
                 </div>
               </div>
               <div className="p-4 border-t border-zinc-800">
@@ -148,6 +167,16 @@ const Navbar: React.FC = () => {
             <Mail className="mr-1 size-4" />
             Contact
           </Link>
+          {isSignedIn && (
+            <Link
+              to="/profile"
+              className="px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors flex items-center"
+              activeProps={{ className: "bg-zinc-800 text-white" }}
+            >
+              <User className="mr-1 size-4" />
+              Profile
+            </Link>
+          )}
 
           <div className="ml-2">
             {isSignedIn ? (
