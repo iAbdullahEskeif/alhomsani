@@ -1,3 +1,5 @@
+import type React from "react";
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +18,8 @@ import {
   ImageIcon,
   AlertCircle,
   Gauge,
+  Heart,
+  Bookmark,
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface Product {
   id: number;
@@ -75,8 +80,39 @@ function ElectricalCars() {
   const [isAddButtonVisible, setIsAddButtonVisible] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const touchStartX = useRef<number | null>(null);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [bookmarks, setBookmarks] = useState<number[]>([]);
 
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
+
+  // Fetch user's favorites and bookmarks
+  useEffect(() => {
+    const fetchUserSavedItems = async () => {
+      if (!isSignedIn) return;
+
+      try {
+        const token = await getToken();
+        const response = await fetch(`${API_URL}/profiles/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+
+        const profile = await response.json();
+        setFavorites(profile.favorite_cars || []);
+        setBookmarks(profile.bookmarked_cars || []);
+      } catch (error) {
+        console.error("Error fetching saved items:", error);
+      }
+    };
+
+    fetchUserSavedItems();
+  }, [isSignedIn, getToken]);
+
   const fetchProducts = async (): Promise<Product[]> => {
     try {
       const response = await fetch(`${API_URL}/api/`, {
@@ -153,6 +189,92 @@ function ElectricalCars() {
       setError(error.message || "Failed to add product. Please try again.");
     },
   });
+
+  // Toggle favorite
+  const toggleFavorite = async (carId: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add favorites");
+      return;
+    }
+
+    try {
+      const isFavorite = favorites.includes(carId);
+      const endpoint = isFavorite
+        ? `/profiles/favorites/remove/${carId}/`
+        : `/profiles/favorites/add/${carId}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: carId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isFavorite ? "remove from" : "add to"} favorites`,
+        );
+      }
+
+      // Update local state
+      if (isFavorite) {
+        setFavorites(favorites.filter((id) => id !== carId));
+        toast.success("Removed from favorites");
+      } else {
+        setFavorites([...favorites, carId]);
+        toast.success("Added to favorites");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Failed to update favorites");
+    }
+  };
+
+  // Toggle bookmark
+  const toggleBookmark = async (carId: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add bookmarks");
+      return;
+    }
+
+    try {
+      const isBookmarked = bookmarks.includes(carId);
+      const endpoint = isBookmarked
+        ? `/profiles/bookmarks/remove/${carId}/`
+        : `/profiles/bookmarks/add/${carId}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: carId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isBookmarked ? "remove from" : "add to"} bookmarks`,
+        );
+      }
+
+      // Update local state
+      if (isBookmarked) {
+        setBookmarks(bookmarks.filter((id) => id !== carId));
+        toast.success("Removed from bookmarks");
+      } else {
+        setBookmarks([...bookmarks, carId]);
+        toast.success("Added to bookmarks");
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      toast.error("Failed to update bookmarks");
+    }
+  };
 
   const rotateProducts = useCallback(
     (direction: "next" | "prev") => {
@@ -262,7 +384,7 @@ function ElectricalCars() {
   };
 
   const formatPrice = (price: string): string => {
-    return `$${Number.parseFloat(price).toFixed(2)}`;
+    return `${Number.parseFloat(price).toFixed(2)}`;
   };
 
   return (
@@ -505,7 +627,7 @@ function ElectricalCars() {
                     type="button"
                     variant="outline"
                     onClick={handleCancel}
-                    className="border-zinc-700 text-rose-600 hover:bg-zinc-800 hover:text-white"
+                    className="border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
                   >
                     <X className="mr-1 size-4" />
                     Cancel
@@ -570,6 +692,28 @@ function ElectricalCars() {
                         className="w-full h-48 object-cover transition-transform duration-700 hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="size-8 bg-zinc-900/80 hover:bg-zinc-800"
+                          onClick={() => toggleFavorite(product.id)}
+                        >
+                          <Heart
+                            className={`size-4 ${favorites.includes(product.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                          />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="size-8 bg-zinc-900/80 hover:bg-zinc-800"
+                          onClick={() => toggleBookmark(product.id)}
+                        >
+                          <Bookmark
+                            className={`size-4 ${bookmarks.includes(product.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                          />
+                        </Button>
+                      </div>
                     </div>
                     <CardContent className="p-5 flex-grow bg-zinc-900">
                       <h3 className="text-xl font-medium text-white mb-3">

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useAuth } from "@clerk/clerk-react";
+import { API_URL } from "../../config";
 import {
   Star,
   StarHalf,
@@ -15,12 +17,14 @@ import {
   Zap,
   Award,
   Key,
+  Bookmark,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 const MOCK_CAR = {
   id: 1,
@@ -134,10 +138,40 @@ const SIMILAR_CARS = [
 function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState(0);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { isSignedIn, getToken } = useAuth();
 
   const product = MOCK_CAR;
-
   const rating = Number.parseFloat(product.rating);
+
+  // Check if car is in favorites/bookmarks on component mount
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      if (!isSignedIn) return;
+
+      try {
+        const token = await getToken();
+        const response = await fetch(`${API_URL}/profiles/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+
+        const profile = await response.json();
+        setIsFavorite(profile.favorite_cars.includes(product.id));
+        setIsBookmarked(profile.bookmarked_cars.includes(product.id));
+      } catch (error) {
+        console.error("Error checking saved status:", error);
+      }
+    };
+
+    checkSavedStatus();
+  }, [isSignedIn, getToken, product.id]);
 
   const formattedPrice = product.price.toLocaleString("en-US", {
     style: "currency",
@@ -145,6 +179,82 @@ function ProductDetail() {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
+
+  // Toggle favorite
+  const toggleFavorite = async () => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add favorites");
+      return;
+    }
+
+    try {
+      const endpoint = isFavorite
+        ? `/profiles/favorites/remove/${product.id}/`
+        : `/profiles/favorites/add/${product.id}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: product.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isFavorite ? "remove from" : "add to"} favorites`,
+        );
+      }
+
+      setIsFavorite(!isFavorite);
+      toast.success(
+        isFavorite ? "Removed from favorites" : "Added to favorites",
+      );
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Failed to update favorites");
+    }
+  };
+
+  // Toggle bookmark
+  const toggleBookmark = async () => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add bookmarks");
+      return;
+    }
+
+    try {
+      const endpoint = isBookmarked
+        ? `/profiles/bookmarks/remove/${product.id}/`
+        : `/profiles/bookmarks/add/${product.id}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: product.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isBookmarked ? "remove from" : "add to"} bookmarks`,
+        );
+      }
+
+      setIsBookmarked(!isBookmarked);
+      toast.success(
+        isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+      );
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      toast.error("Failed to update bookmarks");
+    }
+  };
 
   const renderRating = (rating: any) => {
     const fullStars = Math.floor(rating);
@@ -506,23 +616,36 @@ function ProductDetail() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full border-zinc-700 text-black font-semibold hover:bg-zinc-800 hover:text-white"
+                  className="w-full border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
                 >
                   Schedule Test Drive
                 </Button>
                 <div className="flex gap-2 mt-4">
                   <Button
                     variant="outline"
-                    className="flex-1 flex justify-center items-center gap-1 border-zinc-700 text-black font-semibold hover:bg-zinc-800 hover:text-white"
+                    className={`flex-1 flex justify-center items-center gap-1 border-zinc-700 ${isFavorite ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
+                    onClick={toggleFavorite}
                   >
-                    <Heart className="size-4 text-black" />
-                    <span>Save</span>
+                    <Heart
+                      className={`size-4 ${isFavorite ? "fill-zinc-300" : ""}`}
+                    />
+                    <span>{isFavorite ? "Saved" : "Save"}</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="flex-1 flex justify-center items-center gap-1 border-zinc-700 text-black font-semibold hover:bg-zinc-800 hover:text-white"
+                    className={`flex-1 flex justify-center items-center gap-1 border-zinc-700 ${isBookmarked ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
+                    onClick={toggleBookmark}
                   >
-                    <Share2 className="size-4 text-black" />
+                    <Bookmark
+                      className={`size-4 ${isBookmarked ? "fill-zinc-300" : ""}`}
+                    />
+                    <span>{isBookmarked ? "Bookmarked" : "Bookmark"}</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 flex justify-center items-center gap-1 border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                  >
+                    <Share2 className="size-4" />
                     <span>Share</span>
                   </Button>
                 </div>
