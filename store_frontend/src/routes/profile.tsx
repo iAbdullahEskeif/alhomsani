@@ -508,7 +508,7 @@ function Profile() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                      className="border-zinc-700 text-zinc-100 bg-zinc-800 hover:bg-zinc-700 hover:text-white"
                       onClick={() => setIsEditing(true)}
                     >
                       <Edit className="size-4 mr-2" />
@@ -519,7 +519,7 @@ function Profile() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
+                        className="border-zinc-700 text-zinc-100 bg-zinc-800 hover:bg-zinc-700 hover:text-white"
                         onClick={() => setIsEditing(false)}
                       >
                         <X className="size-4 mr-1" />
