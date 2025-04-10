@@ -50,3 +50,4 @@ typing_extensions==4.12.2
 uritemplate==4.1.1
 urllib3==2.2.3
 django-cloudinary-storage==0.3.0
+stripe==12.0.0

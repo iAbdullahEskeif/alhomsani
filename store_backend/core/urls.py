@@ -29,6 +29,7 @@ urlpatterns = [
     path('profiles/',include('Profiles.urls',namespace='profiles')),
     path('schema/',SpectacularAPIView.as_view(),name='schema'),
     path('schema/docs/',SpectacularSwaggerView.as_view(url_name='schema'),name='docs'),
+    path('payment/',include('payment.urls',namespace='payment'))
 
 ]
 
