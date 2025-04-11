@@ -1,3 +1,5 @@
+import type React from "react";
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +18,9 @@ import {
   ImageIcon,
   AlertCircle,
   Gauge,
+  Heart,
+  Bookmark,
+  Car,
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface Product {
   id: number;
@@ -40,6 +46,7 @@ interface Product {
   sku: string;
   category: number;
   availability: "in_stock" | "out_of_stock";
+  car_type: "classic" | "luxury" | "electrical";
   images: string;
 }
 
@@ -51,6 +58,7 @@ interface NewProduct {
   sku: string;
   category: number;
   availability: "in_stock" | "out_of_stock";
+  car_type: "classic" | "luxury" | "electrical";
   images: string;
 }
 
@@ -69,17 +77,50 @@ function LuxuryCars() {
     sku: "",
     category: 1,
     availability: "in_stock",
+    car_type: "electrical",
     images: "",
   });
   const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
   const [isAddButtonVisible, setIsAddButtonVisible] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const touchStartX = useRef<number | null>(null);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [bookmarks, setBookmarks] = useState<number[]>([]);
 
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
+
+  // Fetch user's favorites and bookmarks
+  useEffect(() => {
+    const fetchUserSavedItems = async () => {
+      if (!isSignedIn) return;
+
+      try {
+        const token = await getToken();
+        const response = await fetch(`${API_URL}/profiles/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+
+        const profile = await response.json();
+        setFavorites(profile.favorite_cars || []);
+        setBookmarks(profile.bookmarked_cars || []);
+      } catch (error) {
+        console.error("Error fetching saved items:", error);
+      }
+    };
+
+    fetchUserSavedItems();
+  }, [isSignedIn, getToken]);
+
   const fetchProducts = async (): Promise<Product[]> => {
     try {
-      const response = await fetch(`${API_URL}/api/`, {
+      // Use the filtered endpoint for electrical cars
+      const response = await fetch(`${API_URL}/api/filtered/?car_type=luxury`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${await getToken()}`,
@@ -125,7 +166,7 @@ function LuxuryCars() {
     isError,
     error: queryError,
   } = useQuery<Product[]>({
-    queryKey: ["products"],
+    queryKey: ["products", "luxury"],
     queryFn: fetchProducts,
     staleTime: 60000,
   });
@@ -133,7 +174,7 @@ function LuxuryCars() {
   const addProductMutation = useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products", "luxury"] });
 
       setNewProduct({
         name: "",
@@ -143,6 +184,7 @@ function LuxuryCars() {
         sku: "",
         category: 1,
         availability: "in_stock",
+        car_type: "luxury",
         images: "",
       });
       setIsFormVisible(false);
@@ -153,6 +195,92 @@ function LuxuryCars() {
       setError(error.message || "Failed to add product. Please try again.");
     },
   });
+
+  // Toggle favorite
+  const toggleFavorite = async (carId: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add favorites");
+      return;
+    }
+
+    try {
+      const isFavorite = favorites.includes(carId);
+      const endpoint = isFavorite
+        ? `/profiles/favorites/remove/${carId}/`
+        : `/profiles/favorites/add/${carId}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: carId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isFavorite ? "remove from" : "add to"} favorites`,
+        );
+      }
+
+      // Update local state
+      if (isFavorite) {
+        setFavorites(favorites.filter((id) => id !== carId));
+        toast.success("Removed from favorites");
+      } else {
+        setFavorites([...favorites, carId]);
+        toast.success("Added to favorites");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Failed to update favorites");
+    }
+  };
+
+  // Toggle bookmark
+  const toggleBookmark = async (carId: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add bookmarks");
+      return;
+    }
+
+    try {
+      const isBookmarked = bookmarks.includes(carId);
+      const endpoint = isBookmarked
+        ? `/profiles/bookmarks/remove/${carId}/`
+        : `/profiles/bookmarks/add/${carId}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: carId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isBookmarked ? "remove from" : "add to"} bookmarks`,
+        );
+      }
+
+      // Update local state
+      if (isBookmarked) {
+        setBookmarks(bookmarks.filter((id) => id !== carId));
+        toast.success("Removed from bookmarks");
+      } else {
+        setBookmarks([...bookmarks, carId]);
+        toast.success("Added to bookmarks");
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      toast.error("Failed to update bookmarks");
+    }
+  };
 
   const rotateProducts = useCallback(
     (direction: "next" | "prev") => {
@@ -451,6 +579,35 @@ function LuxuryCars() {
                       </Select>
                     </div>
                   </div>
+
+                  <div>
+                    <Label htmlFor="car_type" className="text-zinc-400">
+                      Car Type
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Car className="size-5 text-zinc-500" />
+                      </div>
+                      <Select
+                        value={newProduct.car_type}
+                        onValueChange={(value) =>
+                          setNewProduct({
+                            ...newProduct,
+                            car_type: value as "classic" | "luxury" | "classic",
+                          })
+                        }
+                      >
+                        <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                          <SelectValue placeholder="Select car type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+                          <SelectItem value="classic">Classic</SelectItem>
+                          <SelectItem value="luxury">Luxury</SelectItem>
+                          <SelectItem value="electrical">Electrical</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -503,7 +660,7 @@ function LuxuryCars() {
                     type="button"
                     variant="outline"
                     onClick={handleCancel}
-                    className="border-zinc-700 text-rose-600 hover:bg-zinc-800 hover:text-white"
+                    className="border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
                   >
                     <X className="mr-1 size-4" />
                     Cancel
@@ -562,12 +719,36 @@ function LuxuryCars() {
                         src={
                           product.images ||
                           "/placeholder.svg?height=200&width=300" ||
+                          "/placeholder.svg" ||
+                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }
                         alt={product.name}
                         className="w-full h-48 object-cover transition-transform duration-700 hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="size-8 bg-zinc-900/80 hover:bg-zinc-800"
+                          onClick={() => toggleFavorite(product.id)}
+                        >
+                          <Heart
+                            className={`size-4 ${favorites.includes(product.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                          />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="size-8 bg-zinc-900/80 hover:bg-zinc-800"
+                          onClick={() => toggleBookmark(product.id)}
+                        >
+                          <Bookmark
+                            className={`size-4 ${bookmarks.includes(product.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                          />
+                        </Button>
+                      </div>
                     </div>
                     <CardContent className="p-5 flex-grow bg-zinc-900">
                       <h3 className="text-xl font-medium text-white mb-3">
@@ -605,7 +786,12 @@ function LuxuryCars() {
                           variant="secondary"
                           className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
                         >
-                          <Link to="/cars/productDetail">View Details</Link>
+                          <Link
+                            to="/cars/$id"
+                            params={{ id: product.id.toString() }}
+                          >
+                            View Details
+                          </Link>
                         </Button>
                       </div>
                     </CardContent>
