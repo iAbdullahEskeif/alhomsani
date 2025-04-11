@@ -13,9 +13,36 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'category', 'name', 'description', 'price', 'stock_quantity',
-                  'sku', 'created_at', 'updated_at', 'availability', 'car_type','image',
-                  'image_url', 'image_public_id')  
+        fields = (
+            'id', 
+            'category', 
+            'name', 
+            'description', 
+            'price', 
+            'stock_quantity',
+            'sku', 
+            'created_at', 
+            'updated_at', 
+            'availability', 
+            'car_type',
+            'image_url', 
+            'image_public_id',
+            'key_features',
+            # New automotive fields
+            'engine',
+            'power',
+            'torque',
+            'transmission',
+            'acceleration_0_100',
+            'top_speed',
+            'fuel_economy',
+            'dimensions',
+            'weight_kg',
+            'wheelbase_mm',
+            'fuel_tank_capacity',
+            'trunk_capacity_liters',
+            'image',
+        )
         
         read_only_fields = ['image_url', 'image_public_id']
 

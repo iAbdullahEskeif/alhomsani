@@ -18,9 +18,10 @@ from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from .models import Profile, ActivityLog
+from .models import Profile, ActivityLog,Reviews
 from store.models import Product
-from .serializers import ProfileSerializer, ActivityLogSerializer,DummyFavoriteSerializer
+from .serializers import ProfileSerializer, ActivityLogSerializer,DummyFavoriteSerializer,ReviewSerializer
+from .serializers import CreateReviewSerializer
 
 class IsOwnerOfProfile(permissions.BasePermission):
 
@@ -120,3 +121,33 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user.profile
+    
+
+
+class ReviewListView(generics.ListAPIView):
+    """View to list all reviews for a specific car"""
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.AllowAny]  # Or IsAuthenticated if needed
+    
+    def get_queryset(self):
+        car_id = self.kwargs['car_id']
+        return Reviews.objects.filter(car__id=car_id).order_by('-time_written')
+    
+
+class CreateReviewView(generics.CreateAPIView):
+    """View to create a new review"""
+    queryset = Reviews.objects.all()
+    serializer_class = CreateReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Only logged-in users can review
+    
+    def perform_create(self, serializer):
+        car_id = self.kwargs['car_id']
+        car = generics.get_object_or_404(Product, id=car_id)
+        serializer.save(
+            reviewer=self.request.user.profile,  # Assuming Profile is linked to User
+            car=car
+        )
+
+
+
+
