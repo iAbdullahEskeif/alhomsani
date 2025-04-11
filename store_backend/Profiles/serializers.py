@@ -11,9 +11,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['user', 'name', 'profile_picture', 'contact_info', 'favorite_cars']
 '''
-
 from rest_framework import serializers
-from .models import Profile, ActivityLog
+from .models import Profile, ActivityLog,Reviews
 from store.models import Product  # Importing the Product model for favorites & bookmarks
 
 class ActivityLogSerializer(serializers.ModelSerializer):
@@ -44,4 +43,18 @@ class ProfileSerializer(serializers.ModelSerializer):
 class DummyFavoriteSerializer(serializers.Serializer):
     car_id = serializers.IntegerField()
 
+
+class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.StringRelatedField()  # Shows reviewer's __str__ representation
+    # If you want to show specific profile fields instead:
+    # reviewer_username = serializers.CharField(source='reviewer.user.username', read_only=True)
     
+    class Meta:
+        model = Reviews
+        fields = ['id', 'reviewer', 'car', 'review', 'time_written']
+        read_only_fields = ['reviewer', 'time_written']
+    
+class CreateReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reviews
+        fields = ['review']  # Only need 'review' for creation (car will be from URL, reviewer from request)

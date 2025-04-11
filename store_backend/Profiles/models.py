@@ -45,5 +45,13 @@ class ActivityLog(models.Model):
     def __str__(self):
         return f"{self.profile.user.username} {self.action} {self.product.name} at {self.timestamp}"
     
+class Reviews(models.Model):
+    reviewer=models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='reviews')
+    car=models.ForeignKey(Product,on_delete=models.CASCADE,related_name='reviews')
+    review=models.CharField(max_length=500)
+    time_written=models.DateTimeField(auto_now_add=True)
+
+
+    
 
 

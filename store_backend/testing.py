@@ -1,14 +1,15 @@
-n=int(input())
-X= input()
-Y=X.split(" ")
-N= int(input())
+def clock(time):
+    dt='AM'
+    hrs,mins=time.split(':')
+    hrs=int(hrs)
+    mins=int(mins)
+    if hrs>=12:
+        de='PM'
+    hrs=hrs%12
+    print(f"0{hrs}:{mins} {dt}")
 
-ind=-1
-flag=-1
-for i in Y:
-    ind=ind+1
-    if int(i)==N:
-        flag=ind
-        break
 
-print(flag)
+clo="12:12"
+clock(clo)
+
+
