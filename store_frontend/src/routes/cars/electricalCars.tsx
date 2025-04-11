@@ -20,6 +20,7 @@ import {
   Gauge,
   Heart,
   Bookmark,
+  Car,
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,6 +46,7 @@ interface Product {
   sku: string;
   category: number;
   availability: "in_stock" | "out_of_stock";
+  car_type: "classic" | "luxury" | "electrical";
   images: string;
 }
 
@@ -56,6 +58,7 @@ interface NewProduct {
   sku: string;
   category: number;
   availability: "in_stock" | "out_of_stock";
+  car_type: "classic" | "luxury" | "electrical";
   images: string;
 }
 
@@ -74,6 +77,7 @@ function ElectricalCars() {
     sku: "",
     category: 1,
     availability: "in_stock",
+    car_type: "electrical",
     images: "",
   });
   const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
@@ -115,13 +119,17 @@ function ElectricalCars() {
 
   const fetchProducts = async (): Promise<Product[]> => {
     try {
-      const response = await fetch(`${API_URL}/api/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${await getToken()}`,
-          "Content-Type": "application/json",
+      // Use the filtered endpoint for electrical cars
+      const response = await fetch(
+        `${API_URL}/api/filtered/?car_type=electrical`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
@@ -161,7 +169,7 @@ function ElectricalCars() {
     isError,
     error: queryError,
   } = useQuery<Product[]>({
-    queryKey: ["products"],
+    queryKey: ["products", "electrical"],
     queryFn: fetchProducts,
     staleTime: 60000,
   });
@@ -169,7 +177,7 @@ function ElectricalCars() {
   const addProductMutation = useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products", "electrical"] });
 
       setNewProduct({
         name: "",
@@ -179,6 +187,7 @@ function ElectricalCars() {
         sku: "",
         category: 1,
         availability: "in_stock",
+        car_type: "electrical",
         images: "",
       });
       setIsFormVisible(false);
@@ -384,7 +393,7 @@ function ElectricalCars() {
   };
 
   const formatPrice = (price: string): string => {
-    return `${Number.parseFloat(price).toFixed(2)}`;
+    return `$${Number.parseFloat(price).toFixed(2)}`;
   };
 
   return (
@@ -575,6 +584,38 @@ function ElectricalCars() {
                       </Select>
                     </div>
                   </div>
+
+                  <div>
+                    <Label htmlFor="car_type" className="text-zinc-400">
+                      Car Type
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Car className="size-5 text-zinc-500" />
+                      </div>
+                      <Select
+                        value={newProduct.car_type}
+                        onValueChange={(value) =>
+                          setNewProduct({
+                            ...newProduct,
+                            car_type: value as
+                              | "classic"
+                              | "luxury"
+                              | "electrical",
+                          })
+                        }
+                      >
+                        <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                          <SelectValue placeholder="Select car type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+                          <SelectItem value="classic">Classic</SelectItem>
+                          <SelectItem value="luxury">Luxury</SelectItem>
+                          <SelectItem value="electrical">Electrical</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -686,6 +727,8 @@ function ElectricalCars() {
                         src={
                           product.images ||
                           "/placeholder.svg?height=200&width=300" ||
+                          "/placeholder.svg" ||
+                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }
                         alt={product.name}
@@ -751,7 +794,12 @@ function ElectricalCars() {
                           variant="secondary"
                           className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
                         >
-                          <Link to="/cars/productDetail">View Details</Link>
+                          <Link
+                            to="/cars/$id"
+                            params={{ id: product.id.toString() }}
+                          >
+                            View Details
+                          </Link>
                         </Button>
                       </div>
                     </CardContent>
