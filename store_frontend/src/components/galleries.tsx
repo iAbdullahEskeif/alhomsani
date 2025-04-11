@@ -29,8 +29,9 @@ const Galleries = () => {
     {
       title: "Upcoming Models",
       items: [
-        { name: "2025 Concept Cars", path: "/conceptcars" },
-        { name: "Future Classics", path: "/futureclassics" },
+        { name: "2025 Concept Cars", path: "cars/conceptcars" },
+
+        { name: "Future Classics", path: "cars/futureclassicCars" },
       ],
     },
   ];

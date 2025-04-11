@@ -239,7 +239,7 @@ function Index() {
                   variant="secondary"
                   className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
                 >
-                  <Link to="/cars/productDetail">View Details</Link>
+                  <Link to="/">View Details</Link>
                 </Button>
               </CardContent>
             </Card>

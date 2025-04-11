@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useState } from "react";
@@ -21,7 +19,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const { isSignedIn, user } = useAuth();
+  const { isSignedIn } = useAuth();
 
   return (
     <nav className="bg-zinc-950 border-b border-zinc-800 p-4">

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useAuth, useUser } from "@clerk/clerk-react";
@@ -75,7 +73,7 @@ interface CarType {
   id: number;
   name: string;
   price: string;
-  images: string;
+  image_url: string;
   description: string;
   category?: number;
   stock_quantity?: number;
@@ -128,28 +126,22 @@ function ProfilePage() {
   };
 
   // Query for favorite cars
-  const {
-    data: favoriteCarsData = [],
-    isLoading: isFavoritesLoading,
-    isError: isFavoritesError,
-  } = useQuery<CarType[]>({
-    queryKey: ["favoriteCars", profile?.favorite_cars],
-    queryFn: () => fetchCars(profile?.favorite_cars || []),
-    enabled: !!profile && profile.favorite_cars.length > 0,
-    staleTime: 60000,
-  });
+  const { data: favoriteCarsData = [], isLoading: isFavoritesLoading } =
+    useQuery<CarType[]>({
+      queryKey: ["favoriteCars", profile?.favorite_cars],
+      queryFn: () => fetchCars(profile?.favorite_cars || []),
+      enabled: !!profile && profile.favorite_cars.length > 0,
+      staleTime: 60000,
+    });
 
   // Query for bookmarked cars
-  const {
-    data: bookmarkedCarsData = [],
-    isLoading: isBookmarksLoading,
-    isError: isBookmarksError,
-  } = useQuery<CarType[]>({
-    queryKey: ["bookmarkedCars", profile?.bookmarked_cars],
-    queryFn: () => fetchCars(profile?.bookmarked_cars || []),
-    enabled: !!profile && profile.bookmarked_cars.length > 0,
-    staleTime: 60000,
-  });
+  const { data: bookmarkedCarsData = [], isLoading: isBookmarksLoading } =
+    useQuery<CarType[]>({
+      queryKey: ["bookmarkedCars", profile?.bookmarked_cars],
+      queryFn: () => fetchCars(profile?.bookmarked_cars || []),
+      enabled: !!profile && profile.bookmarked_cars.length > 0,
+      staleTime: 60000,
+    });
 
   // Set the state variables based on the query results
   useEffect(() => {
@@ -208,7 +200,7 @@ function ProfilePage() {
     if (userId) {
       fetchProfile();
     }
-  }, [userId, getToken, username]);
+  }, [userId, getToken, username, isLoaded, user]);
 
   // Fetch activity log
   useEffect(() => {
@@ -241,7 +233,7 @@ function ProfilePage() {
     if (userId && isCurrentUser) {
       fetchActivity();
     }
-  }, [userId, getToken, activityPage, isCurrentUser]);
+  }, [userId, getToken, activityPage, isCurrentUser, isLoaded, activityLog]);
 
   // Remove this useEffect:
   // useEffect(() => {
@@ -392,7 +384,7 @@ function ProfilePage() {
         }
 
         const allCars = await carResponse.json();
-        const carData = allCars.find((c) => c.id === carId);
+        const carData = allCars.find((c: CarType) => c.id === carId);
 
         if (!carData) {
           throw new Error("Car not found");
@@ -463,7 +455,7 @@ function ProfilePage() {
         }
 
         const allCars = await carResponse.json();
-        const carData = allCars.find((c) => c.id === carId);
+        const carData = allCars.find((c: CarType) => c.id === carId);
 
         if (!carData) {
           throw new Error("Car not found");
@@ -927,7 +919,7 @@ function ProfilePage() {
                           >
                             <div className="relative h-40">
                               <img
-                                src={car.images || "/placeholder.svg"}
+                                src={car.image_url || "/placeholder.svg"}
                                 alt={car.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
@@ -1019,7 +1011,7 @@ function ProfilePage() {
                           >
                             <div className="relative h-40">
                               <img
-                                src={car.images || "/placeholder.svg"}
+                                src={car.image_url || "/placeholder.svg"}
                                 alt={car.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {

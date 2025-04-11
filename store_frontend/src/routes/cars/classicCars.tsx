@@ -47,7 +47,8 @@ interface Product {
   category: number;
   availability: "in_stock" | "out_of_stock";
   car_type: "classic" | "luxury" | "electrical";
-  images: string;
+  image: File | string | null | undefined; // <-- now supports both local file and uploaded URL}
+  image_url: string; // updated to hold the URL returned from the backend
 }
 
 interface NewProduct {
@@ -59,7 +60,7 @@ interface NewProduct {
   category: number;
   availability: "in_stock" | "out_of_stock";
   car_type: "classic" | "luxury" | "electrical";
-  images: string;
+  image: File | string | null | undefined;
 }
 
 const isAdmin = (): boolean => {
@@ -77,8 +78,8 @@ function ClassicCars() {
     sku: "",
     category: 1,
     availability: "in_stock",
-    car_type: "electrical",
-    images: "",
+    car_type: "classic",
+    image: null,
   });
   const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
   const [isAddButtonVisible, setIsAddButtonVisible] = useState<boolean>(true);
@@ -141,11 +142,42 @@ function ClassicCars() {
   };
 
   const createProduct = async (productData: NewProduct): Promise<Product> => {
-    try {
+    const token = await getToken();
+
+    // If image is a File, use FormData
+    if (productData.image instanceof File) {
+      const formData = new FormData();
+      // Append all fields; ensure key names match your backend serializer
+      formData.append("name", productData.name);
+      formData.append("description", productData.description);
+      formData.append("price", productData.price);
+      formData.append("stock_quantity", productData.stock_quantity.toString());
+      formData.append("sku", productData.sku);
+      formData.append("category", productData.category.toString());
+      formData.append("availability", productData.availability);
+      formData.append("car_type", productData.car_type);
+      formData.append("image", productData.image);
+
       const response = await fetch(`${API_URL}/api/`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${await getToken()}`,
+          Authorization: `Bearer ${token}`,
+          // Do not set Content-Type; the browser will add the correct boundary.
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to create product");
+      }
+      return await response.json();
+    } else {
+      // Otherwise, if no file, send JSON (if that's acceptable)
+      const response = await fetch(`${API_URL}/api/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(productData),
@@ -155,14 +187,9 @@ function ClassicCars() {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.detail || "Failed to create product");
       }
-
       return await response.json();
-    } catch (error) {
-      console.error("Error creating product:", error);
-      throw error;
     }
   };
-
   const {
     data: products = [],
     isLoading,
@@ -188,7 +215,7 @@ function ClassicCars() {
         category: 1,
         availability: "in_stock",
         car_type: "classic",
-        images: "",
+        image: null,
       });
       setIsFormVisible(false);
       setIsAddButtonVisible(true);
@@ -399,7 +426,7 @@ function ClassicCars() {
   return (
     <div className="min-h-screen bg-zinc-950">
       <div className="w-full max-w-6xl mx-auto p-4">
-        <h2 className="text-3xl font-medium text-white mb-6">Classic Cars</h2>
+        <h2 className="text-3xl font-medium text-white mb-6">CLassic Cars</h2>
 
         {error && (
           <div className="mb-6 p-3 bg-zinc-800 border border-zinc-700 rounded-lg flex items-start">
@@ -605,7 +632,7 @@ function ClassicCars() {
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
                           <SelectItem value="classic">Classic</SelectItem>
-                          <SelectItem value="luxury">Luxury</SelectItem>
+                          <SelectItem value="luxury"> Luxury</SelectItem>
                           <SelectItem value="electrical">Electrical</SelectItem>
                         </SelectContent>
                       </Select>
@@ -646,14 +673,18 @@ function ClassicCars() {
                     </div>
                     <Input
                       id="image"
-                      type="url"
-                      value={newProduct.images}
-                      onChange={(e) =>
-                        setNewProduct({ ...newProduct, images: e.target.value })
-                      }
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // Store the file or upload it directly to Cloudinary here
+                          setNewProduct({ ...newProduct, image: file });
+                        }
+                      }}
                       required
                       className="pl-10 bg-zinc-800 border-zinc-700 text-white"
-                      placeholder="Enter image URL"
+                      placeholder="Upload image"
                     />
                   </div>
                 </div>
@@ -719,13 +750,7 @@ function ClassicCars() {
                   <Card className="bg-zinc-900 border-zinc-800 shadow-md overflow-hidden h-full flex flex-col hover:border-zinc-700 transition-all duration-300">
                     <div className="relative overflow-hidden bg-zinc-900">
                       <img
-                        src={
-                          product.images ||
-                          "/placeholder.svg?height=200&width=300" ||
-                          "/placeholder.svg" ||
-                          "/placeholder.svg" ||
-                          "/placeholder.svg"
-                        }
+                        src={product.image_url}
                         alt={product.name}
                         className="w-full h-48 object-cover transition-transform duration-700 hover:scale-105"
                       />
