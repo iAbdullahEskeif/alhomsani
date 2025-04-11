@@ -49,3 +49,6 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} - {self.car_type}"
+    
+
+    

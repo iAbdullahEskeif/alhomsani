@@ -1,7 +1,14 @@
-def test(num1,num2):
-    flag=num1*num2
-    return num1
+n=int(input())
+X= input()
+Y=X.split(" ")
+N= int(input())
 
-kwargs={"num1":1,"num2":2}
+ind=-1
+flag=-1
+for i in Y:
+    ind=ind+1
+    if int(i)==N:
+        flag=ind
+        break
 
-print(test(**kwargs))
+print(flag)
