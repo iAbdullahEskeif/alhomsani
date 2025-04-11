@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useAuth } from "@clerk/clerk-react";
 import { API_URL } from "../../config";
+import StripeComponent from "../../components/StripeComponent.tsx";
 import {
   Star,
   StarHalf,
@@ -15,7 +16,6 @@ import {
   Share2,
   ArrowLeft,
   Zap,
-  Award,
   Key,
   Bookmark,
   Loader2,
@@ -26,15 +26,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-
-// Mock data for fields not available from the API
-const CAR_COLORS = [
-  { name: "Obsidian Black", hex: "#0F0F0F" },
-  { name: "Diamond White", hex: "#F5F5F5" },
-  { name: "Nautical Blue", hex: "#0F52BA" },
-  { name: "Designo Cardinal Red", hex: "#9B111E" },
-  { name: "Emerald Green", hex: "#046307" },
-];
 
 const CAR_FEATURES = [
   "Premium Nappa Leather Seats",
@@ -130,22 +121,26 @@ interface CarType {
   category: number;
   availability: "in_stock" | "out_of_stock";
   car_type: "classic" | "luxury" | "electrical";
-  images: string;
+  image_url: string;
   created_at: string;
   updated_at: string;
 }
 
 function ProductDetail() {
   const { id } = useParams({ from: "/cars/$id" });
-  const [selectedColor, setSelectedColor] = useState(0);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [product, setProduct] = useState<CarType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showStripeModal, setShowStripeModal] = useState(false);
+
   const { isSignedIn, getToken } = useAuth();
 
+  const handleBuyNowClick = () => {
+    setShowStripeModal(true);
+  };
   // Default rating for mock data
   const rating = 4.9;
 
@@ -418,7 +413,7 @@ function ProductDetail() {
               <div className="relative transition-transform duration-500 hover:scale-105">
                 <img
                   src={
-                    product.images ||
+                    product.image_url ||
                     "/placeholder.svg?height=400&width=600&text=No+Image"
                   }
                   alt={product.name}
@@ -622,7 +617,7 @@ function ProductDetail() {
         </div>
 
         <div className="space-y-8">
-          <Card className="bg-zinc-900 border-zinc-800 shadow-md">
+          <Card className=" sticky top-5  bg-zinc-900 border-zinc-800 shadow-md">
             <CardHeader>
               <CardTitle className="text-xl font-medium text-white flex items-center">
                 <Key className="size-5 text-zinc-400 mr-2" />
@@ -630,30 +625,6 @@ function ProductDetail() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-sm font-medium text-zinc-500 mb-2">
-                  Available Colors
-                </h3>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {CAR_COLORS.map((color, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedColor(index)}
-                      className={`size-8 rounded-full border-2 ${
-                        selectedColor === index
-                          ? "border-zinc-400 ring-2 ring-zinc-400/30"
-                          : "border-zinc-700"
-                      }`}
-                      style={{ backgroundColor: color.hex }}
-                      aria-label={color.name}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-zinc-400">
-                  {CAR_COLORS[selectedColor].name}
-                </p>
-              </div>
-
               <div>
                 <h3 className="text-sm font-medium text-zinc-500 mb-2">
                   Stock & Availability
@@ -712,15 +683,24 @@ function ProductDetail() {
                   className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
                   variant="secondary"
                   disabled={product.availability !== "in_stock"}
+                  onClick={handleBuyNowClick}
                 >
                   Buy Now
                 </Button>
-                <Button
-                  variant="outline"
-                  className="w-full border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
-                >
-                  Schedule Test Drive
-                </Button>
+
+                {showStripeModal && (
+                  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-lg w-full relative">
+                      <button
+                        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowStripeModal(false)}
+                      >
+                        X
+                      </button>
+                      <StripeComponent />
+                    </div>
+                  </div>
+                )}
                 <div className="flex gap-2 mt-4">
                   <Button
                     variant="outline"
@@ -764,84 +744,6 @@ function ProductDetail() {
                 <ShieldCheck className="size-4 mr-1 text-zinc-400" />
                 <span>Secure transaction & 7-day return policy</span>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-zinc-900 border-zinc-800 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-xl font-medium text-white flex items-center">
-                <Award className="size-5 text-zinc-400 mr-2" />
-                Financing Options
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Calculate monthly payments based on actual price */}
-              <Card className="bg-zinc-800 border-zinc-700">
-                <CardContent className="p-4">
-                  <div className="font-medium text-zinc-300 mb-1">
-                    36-Month Financing
-                  </div>
-                  <div className="text-2xl font-medium text-white mb-2">
-                    ${Math.round((basePrice - 15000) / 36).toLocaleString()}/mo
-                  </div>
-                  <div className="text-sm text-zinc-400">
-                    <p>3.9% APR, $15,000 down payment</p>
-                    <p>
-                      Total cost: $
-                      {Math.round(
-                        (basePrice - 15000) * 1.039 + 15000,
-                      ).toLocaleString()}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="p-4">
-                  <div className="font-medium text-zinc-400 mb-1">
-                    48-Month Financing
-                  </div>
-                  <div className="text-lg font-medium text-white mb-2">
-                    ${Math.round((basePrice - 15000) / 48).toLocaleString()}/mo
-                  </div>
-                  <div className="text-sm text-zinc-500">
-                    <p>4.2% APR, $15,000 down payment</p>
-                    <p>
-                      Total cost: $
-                      {Math.round(
-                        (basePrice - 15000) * 1.042 + 15000,
-                      ).toLocaleString()}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardContent className="p-4">
-                  <div className="font-medium text-zinc-400 mb-1">
-                    60-Month Financing
-                  </div>
-                  <div className="text-lg font-medium text-white mb-2">
-                    ${Math.round((basePrice - 15000) / 60).toLocaleString()}/mo
-                  </div>
-                  <div className="text-sm text-zinc-500">
-                    <p>4.5% APR, $15,000 down payment</p>
-                    <p>
-                      Total cost: $
-                      {Math.round(
-                        (basePrice - 15000) * 1.045 + 15000,
-                      ).toLocaleString()}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Button
-                variant="link"
-                className="w-full text-zinc-400 hover:text-white"
-              >
-                Calculate Custom Payment
-              </Button>
             </CardContent>
           </Card>
         </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useAuth, useUser } from "@clerk/clerk-react";
@@ -39,9 +41,15 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 // Add these imports at the top of the file with the other imports
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
 // Types
+interface ActivityItem {
+  profile: number;
+  product: number;
+  action: "purchase" | "view" | "bookmark" | "favorite";
+  timestamp: string;
+}
 interface Profile {
   user: number;
   name: string;
@@ -53,13 +61,6 @@ interface Profile {
   bookmarked_cars: number[];
   activity_log?: ActivityItem[]; // Make this optional
   member_since: string;
-}
-
-interface ActivityItem {
-  profile: number;
-  product: number;
-  action: "purchase" | "view" | "bookmark" | "favorite";
-  timestamp: string;
 }
 
 interface ActivityResponse {
@@ -87,16 +88,15 @@ function ProfilePage() {
   const { username } = useParams({ from: "/profile/$username" });
   const { getToken, userId } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [carNames, setCarNames] = useState<{ [carId: number]: string }>({});
   const [isEditing, setIsEditing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<Profile>>({});
   const [activityLog, setActivityLog] = useState<ActivityItem[]>([]);
-  const [activityPage, setActivityPage] = useState(1);
   const [hasMoreActivity, setHasMoreActivity] = useState(false);
   const [favoriteCars, setFavoriteCars] = useState<CarType[]>([]);
   const [bookmarkedCars, setBookmarkedCars] = useState<CarType[]>([]);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isCurrentUser, setIsCurrentUser] = useState(false);
 
   // Add these query hooks after the state declarations
   const fetchCars = async (carIds: number[]): Promise<CarType[]> => {
@@ -143,6 +143,143 @@ function ProfilePage() {
       staleTime: 60000,
     });
 
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    isError,
+    error,
+  } = useQuery<Profile, Error>({
+    queryKey: ["profile", username, userId],
+    queryFn: async () => {
+      const token = await getToken();
+      const response = await fetch(`${API_URL}/profiles/`, {
+        // Ensure this endpoint is correct
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch profile");
+      }
+
+      return (await response.json()) as Profile;
+    },
+    enabled: !!userId && isLoaded && !!user,
+    staleTime: 60000, // Keep this as it controls when a refetch might occur
+  });
+
+  useEffect(() => {
+    if (profileData) {
+      setProfile(profileData);
+      setEditedProfile({
+        name: profileData.name || username,
+        location: profileData.location,
+        contact_info: profileData.contact_info,
+        bio: profileData.bio,
+        profile_picture: profileData.profile_picture,
+      });
+      // Logic to determine if it's the current user
+      // This depends on how you identify the current user (e.g., comparing IDs)
+      setIsCurrentUser(true); // Adjust this logic
+    }
+  }, [profileData, username, setProfile, setEditedProfile, setIsCurrentUser]);
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Error fetching profile:", error);
+      toast.error("Failed to load profile data. Please try again.");
+    }
+  }, [isError, error]);
+  const {
+    data: activityData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isError: isActivityError,
+    error: activityError,
+  } = useInfiniteQuery<ActivityResponse, Error>({
+    queryKey: ["activityLog", userId, isCurrentUser],
+    queryFn: async ({ pageParam = 1 }) => {
+      const token = await getToken();
+      const response = await fetch(
+        `${API_URL}/profiles/activity/?page=${pageParam}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch activity");
+      }
+
+      return (await response.json()) as ActivityResponse;
+    },
+    enabled: !!userId && isCurrentUser && isLoaded,
+    getNextPageParam: (lastPage: ActivityResponse) => {
+      return lastPage.next
+        ? Number.parseInt(
+            new URL(lastPage.next).searchParams.get("page") || "0",
+          )
+        : undefined;
+    },
+    staleTime: 60000,
+    initialPageParam: 1,
+  });
+
+  useEffect(() => {
+    if (activityData) {
+      const allResults = activityData.pages.flatMap(
+        (page: ActivityResponse) => page.results,
+      );
+      setActivityLog(allResults);
+      setHasMoreActivity(
+        !!activityData.pages[activityData.pages.length - 1]?.next,
+      );
+    }
+  }, [activityData, setActivityLog, setHasMoreActivity]);
+
+  // Optional: Handle errors using useEffect as well
+  useEffect(() => {
+    if (isActivityError) {
+      console.error("Error fetching activity log:", activityError);
+      // Optionally display an error message to the user
+    }
+  }, [isActivityError, activityError]);
+
+  useEffect(() => {
+    const allLoaded = !isFavoritesLoading && !isBookmarksLoading;
+    if (allLoaded && activityLog.length > 0) {
+      const names: { [carId: number]: string } = {};
+      activityLog.forEach((activity) => {
+        const carId = activity.product;
+        if (!names[carId]) {
+          const favoriteCar = favoriteCarsData.find((car) => car.id === carId);
+          if (favoriteCar) {
+            names[carId] = favoriteCar.name;
+          } else {
+            const bookmarkedCar = bookmarkedCarsData.find(
+              (car) => car.id === carId,
+            );
+            if (bookmarkedCar) {
+              names[carId] = bookmarkedCar.name;
+            } else {
+              names[carId] = `Car ID: ${carId} (Not Found)`; // Fallback if car is not in fetched data
+            }
+          }
+        }
+      });
+      setCarNames(names);
+    }
+  }, [
+    activityLog,
+    favoriteCarsData,
+    bookmarkedCarsData,
+    isFavoritesLoading,
+    isBookmarksLoading,
+  ]);
   // Set the state variables based on the query results
   useEffect(() => {
     if (favoriteCarsData.length > 0) {
@@ -156,157 +293,6 @@ function ProfilePage() {
     }
   }, [bookmarkedCarsData]);
 
-  // Fetch profile data
-  useEffect(() => {
-    if (!isLoaded || !user) return;
-    const fetchProfile = async () => {
-      try {
-        setIsLoading(true);
-        const token = await getToken();
-
-        // In a real app, you would fetch the profile based on the username parameter
-        // For now, we'll just use the current user's profile
-        const response = await fetch(`${API_URL}/profiles/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch profile");
-        }
-
-        const data = await response.json();
-        setProfile(data);
-        setEditedProfile({
-          name: data.name || username, // Use username as fallback if name is empty
-          location: data.location,
-          contact_info: data.contact_info,
-          bio: data.bio,
-          profile_picture: data.profile_picture,
-        });
-
-        // Check if this is the current user's profile
-        // In a real app, you would compare the username with the current user's username
-        setIsCurrentUser(true);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        toast.error("Failed to load profile data. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (userId) {
-      fetchProfile();
-    }
-  }, [userId, getToken, username, isLoaded, user]);
-
-  // Fetch activity log
-  useEffect(() => {
-    const fetchActivity = async () => {
-      try {
-        const token = await getToken();
-        const response = await fetch(
-          `${API_URL}/profiles/activity/?page=${activityPage}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch activity");
-        }
-
-        const data: ActivityResponse = await response.json();
-        setActivityLog(
-          activityPage === 1 ? data.results : [...activityLog, ...data.results],
-        );
-        setHasMoreActivity(!!data.next);
-      } catch (error) {
-        console.error("Error fetching activity:", error);
-      }
-    };
-
-    if (userId && isCurrentUser) {
-      fetchActivity();
-    }
-  }, [userId, getToken, activityPage, isCurrentUser, isLoaded, activityLog]);
-
-  // Remove this useEffect:
-  // useEffect(() => {
-  //   const fetchCars = async () => {
-  //     if (!profile) return
-
-  //     try {
-  //       const token = await getToken()
-
-  //       // Fetch favorite cars
-  //       const favoritesPromises = profile.favorite_cars.map(async (id) => {
-  //         const response = await fetch(`${API_URL}/cars/${id}/`, {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         })
-
-  //         if (!response.ok) {
-  //           throw new Error(`Failed to fetch car with ID ${id}`)
-  //         }
-
-  //         return await response.json()
-  //       })
-
-  //       // Fetch bookmarked cars
-  //       const bookmarksPromises = profile.bookmarked_cars.map(async (id) => {
-  //         const response = await fetch(`${API_URL}/cars/${id}/`, {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         })
-
-  //         if (!response.ok) {
-  //           throw new Error(`Failed to fetch car with ID ${id}`)
-  //         }
-
-  //         return await response.json()
-  //       })
-
-  //       const fetchedFavorites = await Promise.all(favoritesPromises)
-  //       const fetchedBookmarks = await Promise.all(bookmarksPromises)
-
-  //       setFavoriteCars(fetchedFavorites)
-  //       setBookmarkedCars(fetchedBookmarks)
-  //     } catch (error) {
-  //       console.error("Error fetching cars:", error)
-
-  //       // Fallback to mock data if API fails
-  //       const mockFavoriteCars: CarType[] = profile.favorite_cars.map((id) => ({
-  //         id,
-  //         name: `Luxury Car ${id}`,
-  //         price: `${Math.floor(50000 + Math.random() * 100000)}`,
-  //         images: `/placeholder.svg?height=200&width=300&text=Car+${id}`,
-  //         description: "A premium luxury vehicle with exceptional performance and comfort.",
-  //       }))
-
-  //       const mockBookmarkedCars: CarType[] = profile.bookmarked_cars.map((id) => ({
-  //         id,
-  //         name: `Premium Car ${id}`,
-  //         price: `${Math.floor(40000 + Math.random() * 80000)}`,
-  //         images: `/placeholder.svg?height=200&width=300&text=Car+${id}`,
-  //         description: "An elegant vehicle with advanced features and superior handling.",
-  //       }))
-
-  //       setFavoriteCars(mockFavoriteCars)
-  //       setBookmarkedCars(mockBookmarkedCars)
-  //     }
-  //   }
-
-  //   fetchCars()
-  // }, [profile, getToken])
-
-  // Update profile
   const handleUpdateProfile = async () => {
     if (!profile) return;
 
@@ -480,8 +466,11 @@ function ProfilePage() {
       );
     }
   };
+  const getCarNameFromActivity = (carId: number): string =>
+    carNames[carId] || `Car ID: ${carId} (Loading...)`;
 
   // Format date
+  //
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -529,8 +518,8 @@ function ProfilePage() {
         return "Interacted with a car";
     }
   };
-
-  if (isLoading) {
+  const allCars = [...favoriteCarsData, ...bookmarkedCarsData]; // Combine the arrays  const allCars = [...favoriteCarsData, ...bookmarkedCarsData]; // Combine the arrays
+  if (isProfileLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
@@ -842,7 +831,8 @@ function ProfilePage() {
                                     {getActionText(activity.action)}
                                   </p>
                                   <p className="text-zinc-500 text-sm">
-                                    Car ID: {activity.product}
+                                    Car:{" "}
+                                    {getCarNameFromActivity(activity.product)}
                                   </p>
                                 </div>
                                 <div className="text-right">
@@ -863,10 +853,11 @@ function ProfilePage() {
                           <div className="text-center pt-2">
                             <Button
                               variant="ghost"
-                              onClick={() => setActivityPage(activityPage + 1)}
+                              onClick={() => fetchNextPage()}
+                              disabled={isFetchingNextPage || !hasNextPage}
                               className="text-zinc-400 hover:text-white hover:bg-zinc-800"
                             >
-                              Load More
+                              {isFetchingNextPage ? "Loading..." : "Load More"}
                               <ChevronRight className="ml-1 size-4" />
                             </Button>
                           </div>
@@ -919,13 +910,9 @@ function ProfilePage() {
                           >
                             <div className="relative h-40">
                               <img
-                                src={car.image_url || "/placeholder.svg"}
+                                src={car.image_url}
                                 alt={car.name}
                                 className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  // Fallback if image fails to load
-                                  e.currentTarget.src = `/placeholder.svg?height=200&width=300&text=Car+${car.id}`;
-                                }}
                               />
                               {isCurrentUser && (
                                 <Button
@@ -1011,7 +998,7 @@ function ProfilePage() {
                           >
                             <div className="relative h-40">
                               <img
-                                src={car.image_url || "/placeholder.svg"}
+                                src={car.image_url}
                                 alt={car.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {

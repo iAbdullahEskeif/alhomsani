@@ -2,7 +2,7 @@ import type React from "react";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { API_URL } from "../../config";
 import { useAuth } from "@clerk/clerk-react";
 import {
@@ -63,12 +63,7 @@ interface NewProduct {
   image: File | string | null | undefined;
 }
 
-const isAdmin = (): boolean => {
-  return true;
-};
-
 function LuxuryCars() {
-  const queryClient = useQueryClient();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [newProduct, setNewProduct] = useState<NewProduct>({
     name: "",
@@ -201,8 +196,6 @@ function LuxuryCars() {
   const addProductMutation = useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products", "luxury"] });
-
       setNewProduct({
         name: "",
         description: "",
@@ -435,7 +428,7 @@ function LuxuryCars() {
           </div>
         )}
 
-        {isAdmin() && isAddButtonVisible && (
+        {isAddButtonVisible && (
           <Button
             onClick={handleAddProductClick}
             variant="secondary"

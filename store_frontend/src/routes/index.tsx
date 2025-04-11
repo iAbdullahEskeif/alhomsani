@@ -34,8 +34,7 @@ function Index() {
       id: 1,
       name: "Mercedes-Benz S-Class",
       price: 110000,
-      image:
-        "https://www.mercedes-benz.nl/content/dam/hq/passengercars/cars/s-class/s-class-saloon-long-v223-pi/overview/exterior/08-2024/images/mercedes-benz-s-class-v223-exterior-hotspot-start-3302x1858-08-2024.jpg/1740020339417.jpg?im=Resize=(1850);Crop,rect=(0,0,1850,1040)?height=600&width=800&text=Mercedes+S-Class",
+      image: "",
       specs: {
         power: "496 hp",
         acceleration: "4.3s",
@@ -46,8 +45,7 @@ function Index() {
       id: 2,
       name: "BMW 7 Series",
       price: 95000,
-      image:
-        "https://www.bmw.nl/content/dam/bmw/common/all-models/7-series/sedan/2022/highlights/bmw-7-series-sedan-cp-design-exterior-desktop.jpg?height=200&width=300&text=BMW+7+Series",
+      image: "",
       specs: {
         power: "523 hp",
         acceleration: "4.1s",
@@ -58,8 +56,7 @@ function Index() {
       id: 3,
       name: "Audi A8",
       price: 88000,
-      image:
-        "https://uploads.audi-mediacenter.com/system/production/media/66243/images/479a24d3a67427d9e7d3d7c8c8b086057ac49d94/A189655_web_2880.jpg?1698328292?height=200&width=300&text=Audi+A8",
+      image: "",
       specs: {
         power: "453 hp",
         acceleration: "4.5s",
