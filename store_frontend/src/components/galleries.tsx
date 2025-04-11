@@ -1,6 +1,10 @@
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface GalleryItem {
   name: string;
@@ -13,12 +17,6 @@ interface Gallery {
 }
 
 const Galleries = () => {
-  const [openIndexes, setOpenIndexes] = useState<Record<number, boolean>>({});
-
-  const toggleItem = (index: number) => {
-    setOpenIndexes((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
-
   const galleries: Gallery[] = [
     {
       title: "Available Products",
@@ -38,54 +36,43 @@ const Galleries = () => {
   ];
 
   return (
-    <>
-      <div className="max-w-md mx-auto mt-10 px-4 pb-16">
-        <div className="flex items-center mb-6">
-          <div className="w-1 h-8 bg-rose-600 mr-3"></div>
-          <h2 className="text-2xl font-bold text-white">Vehicle Categories</h2>
-        </div>
+    <div className="max-w-md mx-auto mt-10 px-4 pb-16">
+      <h2 className="text-2xl font-medium text-white mb-6">
+        Vehicle Categories
+      </h2>
 
+      <Accordion type="multiple" className="space-y-4">
         {galleries.map((gallery: Gallery, index: number) => (
-          <div
+          <AccordionItem
             key={index}
-            className="mb-4 border border-zinc-800 rounded-lg bg-zinc-900"
+            value={`item-${index}`}
+            className="border border-zinc-800 rounded-lg bg-zinc-900 px-0"
           >
-            <div
-              className="flex justify-between items-center p-4 bg-gradient-to-r from-zinc-900 to-zinc-800 text-white cursor-pointer rounded-t-lg border-b border-zinc-800"
-              onClick={() => toggleItem(index)}
-            >
+            <AccordionTrigger className="px-4 py-3 text-white hover:no-underline hover:bg-zinc-800 rounded-t-lg data-[state=open]:rounded-b-none data-[state=open]:border-b data-[state=open]:border-zinc-800">
               <span className="font-medium">{gallery.title}</span>
-              <span className="text-rose-500">
-                {openIndexes[index] ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
-              </span>
-            </div>
-            {openIndexes[index] && (
-              <div className="p-4 bg-zinc-900">
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-3 px-4">
+              <div className="space-y-2">
                 {gallery.items.map((item: GalleryItem, itemIndex: number) => (
                   <div
                     key={itemIndex}
-                    className="mb-2 border-b border-zinc-800 pb-2 last:border-0 last:pb-0"
+                    className="pb-2 border-b border-zinc-800 last:border-0 last:pb-0"
                   >
                     <Link
                       to={item.path}
-                      className="text-zinc-300 hover:text-rose-500 transition-colors duration-200 flex items-center"
+                      className="text-zinc-300 hover:text-white hover:bg-zinc-800 block px-2 py-1.5 rounded-md transition-colors"
                     >
                       {item.name}
                     </Link>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </AccordionContent>
+          </AccordionItem>
         ))}
-      </div>
-    </>
+      </Accordion>
+    </div>
   );
 };
 
 export default Galleries;
-

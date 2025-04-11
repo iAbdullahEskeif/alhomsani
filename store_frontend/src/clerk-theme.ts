@@ -1,11 +1,13 @@
-// Clerk appearance configuration to match the dark theme with rose accents
+// Clerk appearance configuration to match the modern monochromatic dark theme
+import { dark } from "@clerk/themes";
+
 export const clerkAppearance = {
-  baseTheme: "dark",
+  baseTheme: [dark],
   variables: {
-    colorPrimary: "#f43f5e", // rose-500
+    colorPrimary: "#71717a", // zinc-500
     colorText: "white",
     colorTextSecondary: "#a1a1aa", // zinc-400
-    colorBackground: "#0a0a0a",
+    colorBackground: "#09090b", // zinc-950
     colorInputBackground: "#18181b", // zinc-900
     colorInputText: "white",
     colorAlphaShade: "#27272a", // zinc-800
@@ -15,8 +17,8 @@ export const clerkAppearance = {
     // Card styling
     card: {
       backgroundColor: "#18181b", // zinc-900
-      borderRadius: "0.75rem",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+      borderRadius: "0.5rem",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
       border: "1px solid #27272a", // zinc-800
     },
     // Button styling
@@ -28,9 +30,9 @@ export const clerkAppearance = {
     },
     // Primary button (sign in/up)
     buttonPrimary: {
-      backgroundColor: "#f43f5e", // rose-500
+      backgroundColor: "#3f3f46", // zinc-700
       "&:hover": {
-        backgroundColor: "#e11d48", // rose-600
+        backgroundColor: "#52525b", // zinc-600
       },
     },
     // Secondary button (back, cancel)
@@ -47,21 +49,21 @@ export const clerkAppearance = {
       border: "1px solid #3f3f46", // zinc-700
       backgroundColor: "#18181b", // zinc-900
       "&:focus": {
-        borderColor: "#f43f5e", // rose-500
-        boxShadow: "0 0 0 1px #f43f5e", // rose-500
+        borderColor: "#52525b", // zinc-600
+        boxShadow: "0 0 0 1px #52525b", // zinc-600
       },
     },
     // Footer
     footer: {
       color: "#a1a1aa", // zinc-400
       "& a": {
-        color: "#f43f5e", // rose-500
+        color: "#d4d4d8", // zinc-300
       },
     },
     // Header
     headerTitle: {
       fontSize: "1.25rem",
-      fontWeight: "600",
+      fontWeight: "500",
     },
     headerSubtitle: {
       color: "#a1a1aa", // zinc-400
@@ -70,7 +72,7 @@ export const clerkAppearance = {
     socialButtonsIconButton: {
       backgroundColor: "#27272a", // zinc-800
       border: "1px solid #3f3f46", // zinc-700
-      color: "white", // Add this to make text white
+      color: "white",
       "&:hover": {
         backgroundColor: "#3f3f46", // zinc-700
       },
@@ -80,7 +82,7 @@ export const clerkAppearance = {
     socialButtonsBlockButton: {
       backgroundColor: "#27272a", // zinc-800
       border: "1px solid #3f3f46", // zinc-700
-      color: "white", // Make text white
+      color: "white",
       "&:hover": {
         backgroundColor: "#3f3f46", // zinc-700
       },
