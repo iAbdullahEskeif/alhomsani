@@ -15,6 +15,7 @@ import { Route as ContactImport } from './routes/contact'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as ProfileIndexImport } from './routes/profile/index'
+import { Route as PaymentConfirmationIndexImport } from './routes/payment-confirmation/index'
 import { Route as ProfileUsernameImport } from './routes/profile/$username'
 import { Route as CarsLuxuryCarsImport } from './routes/cars/luxuryCars'
 import { Route as CarsFutureclassicCarsImport } from './routes/cars/futureclassicCars'
@@ -46,6 +47,12 @@ const IndexRoute = IndexImport.update({
 const ProfileIndexRoute = ProfileIndexImport.update({
   id: '/profile/',
   path: '/profile/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PaymentConfirmationIndexRoute = PaymentConfirmationIndexImport.update({
+  id: '/payment-confirmation/',
+  path: '/payment-confirmation/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -165,6 +172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileUsernameImport
       parentRoute: typeof rootRoute
     }
+    '/payment-confirmation/': {
+      id: '/payment-confirmation/'
+      path: '/payment-confirmation'
+      fullPath: '/payment-confirmation'
+      preLoaderRoute: typeof PaymentConfirmationIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/profile/': {
       id: '/profile/'
       path: '/profile'
@@ -188,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/cars/futureclassicCars': typeof CarsFutureclassicCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
   '/profile/$username': typeof ProfileUsernameRoute
+  '/payment-confirmation': typeof PaymentConfirmationIndexRoute
   '/profile': typeof ProfileIndexRoute
 }
 
@@ -202,6 +217,7 @@ export interface FileRoutesByTo {
   '/cars/futureclassicCars': typeof CarsFutureclassicCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
   '/profile/$username': typeof ProfileUsernameRoute
+  '/payment-confirmation': typeof PaymentConfirmationIndexRoute
   '/profile': typeof ProfileIndexRoute
 }
 
@@ -217,6 +233,7 @@ export interface FileRoutesById {
   '/cars/futureclassicCars': typeof CarsFutureclassicCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
   '/profile/$username': typeof ProfileUsernameRoute
+  '/payment-confirmation/': typeof PaymentConfirmationIndexRoute
   '/profile/': typeof ProfileIndexRoute
 }
 
@@ -233,6 +250,7 @@ export interface FileRouteTypes {
     | '/cars/futureclassicCars'
     | '/cars/luxuryCars'
     | '/profile/$username'
+    | '/payment-confirmation'
     | '/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -246,6 +264,7 @@ export interface FileRouteTypes {
     | '/cars/futureclassicCars'
     | '/cars/luxuryCars'
     | '/profile/$username'
+    | '/payment-confirmation'
     | '/profile'
   id:
     | '__root__'
@@ -259,6 +278,7 @@ export interface FileRouteTypes {
     | '/cars/futureclassicCars'
     | '/cars/luxuryCars'
     | '/profile/$username'
+    | '/payment-confirmation/'
     | '/profile/'
   fileRoutesById: FileRoutesById
 }
@@ -274,6 +294,7 @@ export interface RootRouteChildren {
   CarsFutureclassicCarsRoute: typeof CarsFutureclassicCarsRoute
   CarsLuxuryCarsRoute: typeof CarsLuxuryCarsRoute
   ProfileUsernameRoute: typeof ProfileUsernameRoute
+  PaymentConfirmationIndexRoute: typeof PaymentConfirmationIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
@@ -288,6 +309,7 @@ const rootRouteChildren: RootRouteChildren = {
   CarsFutureclassicCarsRoute: CarsFutureclassicCarsRoute,
   CarsLuxuryCarsRoute: CarsLuxuryCarsRoute,
   ProfileUsernameRoute: ProfileUsernameRoute,
+  PaymentConfirmationIndexRoute: PaymentConfirmationIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
 }
 
@@ -311,6 +333,7 @@ export const routeTree = rootRoute
         "/cars/futureclassicCars",
         "/cars/luxuryCars",
         "/profile/$username",
+        "/payment-confirmation/",
         "/profile/"
       ]
     },
@@ -343,6 +366,9 @@ export const routeTree = rootRoute
     },
     "/profile/$username": {
       "filePath": "profile/$username.tsx"
+    },
+    "/payment-confirmation/": {
+      "filePath": "payment-confirmation/index.tsx"
     },
     "/profile/": {
       "filePath": "profile/index.tsx"
