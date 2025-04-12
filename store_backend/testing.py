@@ -1,15 +1,7 @@
-def clock(time):
-    dt='AM'
-    hrs,mins=time.split(':')
-    hrs=int(hrs)
-    mins=int(mins)
-    if hrs>=12:
-        de='PM'
-    hrs=hrs%12
-    print(f"0{hrs}:{mins} {dt}")
+def test(num1,num2):
+    flag=num1*num2
+    return num1
 
+kwargs={"num1":1,"num2":2}
 
-clo="12:12"
-clock(clo)
-
-
+print(test(**kwargs))
