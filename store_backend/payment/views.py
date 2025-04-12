@@ -21,7 +21,8 @@ def create_payment_intent(request):
             product = Product.objects.get(id=item['id'])
         except Product.DoesNotExist:
             return Response({'error': f"Product with id {item['id']} not found."}, status=404)
-
+        
+        print("ITEM RECEIVED:", item)
         net += product.price * item['quantity']
 
     intent = stripe.PaymentIntent.create(
