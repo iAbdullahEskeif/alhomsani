@@ -704,7 +704,7 @@ function ProductDetail() {
                     <DialogHeader>
                       <DialogTitle>Complete Your Purchase</DialogTitle>
                     </DialogHeader>
-                    <StripeComponent carId={id} amount={totalPrice} />
+                    <StripeComponent carId={Number(id)} quantity={123} />
                   </DialogContent>
                 </Dialog>
                 <div className="flex gap-2 mt-4">
