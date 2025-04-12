@@ -7,22 +7,42 @@ import {
   Gauge,
   Clock,
   Copyright,
+  Heart,
+  Bookmark,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import Banner from "../components/banner";
 import Galleries from "../components/galleries";
+import { useIsVisible } from "@/components/hooks/useisvisible";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, useRef } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { API_URL } from "../config";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 function Index() {
   const images = ["pic1.jpg", "pic2.webp", "pic3.png"];
+
+  const ref1 = useRef<HTMLDivElement>(null);
+  const isVisible1 = useIsVisible(ref1);
+  const ref2 = useRef<HTMLDivElement>(null);
+  const isVisible2 = useIsVisible(ref2);
+  const ref3 = useRef<HTMLDivElement>(null);
+  const isVisible3 = useIsVisible(ref3);
+  const { isSignedIn, getToken } = useAuth();
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [bookmarks, setBookmarks] = useState<number[]>([]);
 
   const featuredVehicles = [
     {
       id: 1,
       name: "Mercedes-Benz S-Class",
       price: 110000,
-      image:
-        "https://www.mercedes-benz.nl/content/dam/hq/passengercars/cars/s-class/s-class-saloon-long-v223-pi/overview/exterior/08-2024/images/mercedes-benz-s-class-v223-exterior-hotspot-start-3302x1858-08-2024.jpg/1740020339417.jpg?im=Resize=(1850);Crop,rect=(0,0,1850,1040)?height=600&width=800&text=Mercedes+S-Class",
+      image: "",
       specs: {
         power: "496 hp",
         acceleration: "4.3s",
@@ -33,8 +53,7 @@ function Index() {
       id: 2,
       name: "BMW 7 Series",
       price: 95000,
-      image:
-        "https://www.bmw.nl/content/dam/bmw/common/all-models/7-series/sedan/2022/highlights/bmw-7-series-sedan-cp-design-exterior-desktop.jpg?height=200&width=300&text=BMW+7+Series",
+      image: "",
       specs: {
         power: "523 hp",
         acceleration: "4.1s",
@@ -45,8 +64,7 @@ function Index() {
       id: 3,
       name: "Audi A8",
       price: 88000,
-      image:
-        "https://uploads.audi-mediacenter.com/system/production/media/66243/images/479a24d3a67427d9e7d3d7c8c8b086057ac49d94/A189655_web_2880.jpg?1698328292?height=200&width=300&text=Audi+A8",
+      image: "",
       specs: {
         power: "453 hp",
         acceleration: "4.5s",
@@ -55,197 +73,292 @@ function Index() {
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-[#0a0a0a] ">
-      <Banner images={images} />
+  // Toggle favorite
+  const toggleFavorite = async (carId: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add favorites");
+      return;
+    }
 
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <Galleries />
+    try {
+      const isFavorite = favorites.includes(carId);
+      const endpoint = isFavorite
+        ? `/profiles/favorites/remove/${carId}/`
+        : `/profiles/favorites/add/${carId}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: carId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isFavorite ? "remove from" : "add to"} favorites`,
+        );
+      }
+
+      // Update local state
+      if (isFavorite) {
+        setFavorites(favorites.filter((id) => id !== carId));
+        toast.success("Removed from favorites");
+      } else {
+        setFavorites([...favorites, carId]);
+        toast.success("Added to favorites");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Failed to update favorites");
+    }
+  };
+
+  // Toggle bookmark
+  const toggleBookmark = async (carId: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to add bookmarks");
+      return;
+    }
+
+    try {
+      const isBookmarked = bookmarks.includes(carId);
+      const endpoint = isBookmarked
+        ? `/profiles/bookmarks/remove/${carId}/`
+        : `/profiles/bookmarks/add/${carId}/`;
+
+      const token = await getToken();
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ car_id: carId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${isBookmarked ? "remove from" : "add to"} bookmarks`,
+        );
+      }
+
+      // Update local state
+      if (isBookmarked) {
+        setBookmarks(bookmarks.filter((id) => id !== carId));
+        toast.success("Removed from bookmarks");
+      } else {
+        setBookmarks([...bookmarks, carId]);
+        toast.success("Added to bookmarks");
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      toast.error("Failed to update bookmarks");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-950">
+      <div
+        ref={ref1}
+        className={`transition-opacity ease-in duration-700 ${isVisible1 ? "opacity-100" : "opacity-0"}`}
+      >
+        <Banner images={images} />
+
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <Galleries />
+        </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="flex items-center mb-10">
-          <div className="w-1 h-8 bg-rose-600 mr-3"></div>
-          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white">
+      <div
+        ref={ref2}
+        className={`transition-opacity ease-in duration-700 ${isVisible2 ? "opacity-100" : "opacity-0"}`}
+      >
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <h2 className="text-3xl font-medium text-white mb-10">
             Featured Vehicles
           </h2>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {featuredVehicles.map((vehicle) => (
-            <div
-              key={vehicle.id}
-              className="bg-zinc-900 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] overflow-hidden hover-lift group"
-            >
-              <div className="relative overflow-hidden">
-                <img
-                  src={vehicle.image || "/placeholder.svg"}
-                  alt={vehicle.name}
-                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
-              </div>
-
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white mb-2">
-                  {vehicle.name}
-                </h3>
-                <p className="text-zinc-400 mb-4">
-                  Starting at ${vehicle.price.toLocaleString()}
-                </p>
-
-                <div className="grid grid-cols-3 gap-2 mb-6">
-                  <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-lg border border-zinc-700">
-                    <Zap className="h-4 w-4 text-rose-600 mb-1" />
-                    <span className="text-xs text-zinc-500">Power</span>
-                    <span className="text-sm font-semibold text-white">
-                      {vehicle.specs.power}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-lg border border-zinc-700">
-                    <Clock className="h-4 w-4 text-rose-600 mb-1" />
-                    <span className="text-xs text-zinc-500">0-100</span>
-                    <span className="text-sm font-semibold text-white">
-                      {vehicle.specs.acceleration}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-lg border border-zinc-700">
-                    <Gauge className="h-4 w-4 text-rose-600 mb-1" />
-                    <span className="text-xs text-zinc-500">Top Speed</span>
-                    <span className="text-sm font-semibold text-white">
-                      {vehicle.specs.topSpeed}
-                    </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {featuredVehicles.map((vehicle) => (
+              <Card
+                key={vehicle.id}
+                className="bg-zinc-900 border-zinc-800 shadow-md overflow-hidden transition-all duration-300 hover:border-zinc-700"
+              >
+                <div className="relative overflow-hidden">
+                  <img
+                    src={vehicle.image || "/placeholder.svg"}
+                    alt={vehicle.name}
+                    className="w-full h-48 object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="size-8 bg-zinc-900/80 hover:bg-zinc-800"
+                      onClick={() => toggleFavorite(vehicle.id)}
+                    >
+                      <Heart
+                        className={`size-4 ${favorites.includes(vehicle.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                      />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="size-8 bg-zinc-900/80 hover:bg-zinc-800"
+                      onClick={() => toggleBookmark(vehicle.id)}
+                    >
+                      <Bookmark
+                        className={`size-4 ${bookmarks.includes(vehicle.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                      />
+                    </Button>
                   </div>
                 </div>
 
-                <Link
-                  to="/cars/productDetail"
-                  className="w-full inline-block text-center bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-lg shadow-rose-600/20"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-medium text-white mb-2">
+                    {vehicle.name}
+                  </h3>
+                  <p className="text-zinc-400 mb-4">
+                    Starting at ${vehicle.price.toLocaleString()}
+                  </p>
 
-        <div className="text-center mt-10">
-          <Link
-            to="/cars/luxuryCars"
-            className="inline-flex items-center text-rose-500 hover:text-rose-400 font-medium"
-          >
-            View All Vehicles
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </div>
-      </div>
+                  <div className="grid grid-cols-3 gap-2 mb-6">
+                    <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-md">
+                      <Zap className="size-4 text-zinc-400 mb-1" />
+                      <span className="text-xs text-zinc-500">Power</span>
+                      <span className="text-sm font-medium text-white">
+                        {vehicle.specs.power}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-md">
+                      <Clock className="size-4 text-zinc-400 mb-1" />
+                      <span className="text-xs text-zinc-500">0-100</span>
+                      <span className="text-sm font-medium text-white">
+                        {vehicle.specs.acceleration}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-center p-2 bg-zinc-800 rounded-md">
+                      <Gauge className="size-4 text-zinc-400 mb-1" />
+                      <span className="text-xs text-zinc-500">Top Speed</span>
+                      <span className="text-sm font-medium text-white">
+                        {vehicle.specs.topSpeed}
+                      </span>
+                    </div>
+                  </div>
 
-      <div className="bg-zinc-900/50 py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-white mb-4">
-              Why Choose Luxury Automotive
-            </h2>
-            <p className="text-zinc-400 max-w-2xl mx-auto">
-              Experience unparalleled luxury and performance with our exclusive
-              collection of premium vehicles.
-            </p>
+                  <Button
+                    asChild
+                    variant="secondary"
+                    className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+                  >
+                    <Link to="/">View Details</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-lg hover-lift">
-              <div className="w-12 h-12 bg-rose-900/20 rounded-full flex items-center justify-center mb-4">
-                <Award className="h-6 w-6 text-rose-500" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Premium Selection
-              </h3>
-              <p className="text-zinc-400">
-                Our vehicles are hand-selected from the world's most prestigious
-                manufacturers to ensure exceptional quality.
-              </p>
-            </div>
-
-            <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-lg hover-lift">
-              <div className="w-12 h-12 bg-rose-900/20 rounded-full flex items-center justify-center mb-4">
-                <Tool className="h-6 w-6 text-rose-500" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Expert Maintenance
-              </h3>
-              <p className="text-zinc-400">
-                Our certified technicians provide comprehensive maintenance
-                services to keep your vehicle in peak condition.
-              </p>
-            </div>
-
-            <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-lg hover-lift">
-              <div className="w-12 h-12 bg-rose-900/20 rounded-full flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-rose-500" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Extended Warranty
-              </h3>
-              <p className="text-zinc-400">
-                Drive with confidence knowing your investment is protected by
-                our comprehensive warranty program.
-              </p>
-            </div>
+          <div className="text-center mt-10">
+            <Button
+              variant="ghost"
+              asChild
+              className="text-zinc-300 hover:text-white hover:bg-zinc-800"
+            >
+              <Link to="/cars/luxuryCars" className="inline-flex items-center">
+                View All Vehicles
+                <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
 
       <div
-        className="h-1 bg-gradient-to-r from-rose-600 to-blue-600 mx-auto"
-        style={{
-          animation: "gradient 8s ease infinite",
-          backgroundSize: "200% 200%",
-        }}
-      ></div>
+        ref={ref3}
+        className={`transition-opacity ease-in duration-700 ${isVisible3 ? "opacity-100" : "opacity-0"}`}
+      >
+        <div className="bg-zinc-900 py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-medium text-white mb-4">
+                Why Choose Luxury Automotive
+              </h2>
+              <p className="text-zinc-400 max-w-2xl mx-auto">
+                Experience unparalleled luxury and performance with our
+                exclusive collection of premium vehicles.
+              </p>
+            </div>
 
-      <div className="w-full bg-zinc-950 border-t border-zinc-800 py-8 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern
-                id="gears"
-                x="0"
-                y="0"
-                width="40"
-                height="40"
-                patternUnits="userSpaceOnUse"
-              >
-                <path d="M11 15H13V17H11V15Z" fill="white" />
-                <path d="M15 15H17V17H15V15Z" fill="white" />
-                <path d="M19 15H21V17H19V15Z" fill="white" />
-                <path d="M23 15H25V17H23V15Z" fill="white" />
-                <path d="M27 15H29V17H27V15Z" fill="white" />
-                <path d="M11 19H13V21H11V19Z" fill="white" />
-                <path d="M15 19H17V21H15V19Z" fill="white" />
-                <path d="M19 19H21V21H19V19Z" fill="white" />
-                <path d="M23 19H25V21H23V19Z" fill="white" />
-                <path d="M27 19H29V21H27V19Z" fill="white" />
-                <path d="M11 23H13V25H11V23Z" fill="white" />
-                <path d="M15 23H17V25H15V23Z" fill="white" />
-                <path d="M19 23H21V25H19V23Z" fill="white" />
-                <path d="M23 23H25V25H23V23Z" fill="white" />
-                <path d="M27 23H29V25H27V23Z" fill="white" />
-              </pattern>
-            </defs>
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#gears)" />
-          </svg>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="bg-zinc-900 border-zinc-800 transition-all duration-300 hover:border-zinc-700">
+                <CardContent className="pt-6">
+                  <div className="size-12 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                    <Award className="size-6 text-zinc-400" />
+                  </div>
+                  <h3 className="text-xl font-medium text-white mb-2">
+                    Premium Selection
+                  </h3>
+                  <p className="text-zinc-400">
+                    Our vehicles are hand-selected from the world's most
+                    prestigious manufacturers to ensure exceptional quality.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-zinc-900 border-zinc-800 transition-all duration-300 hover:border-zinc-700">
+                <CardContent className="pt-6">
+                  <div className="size-12 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                    <Tool className="size-6 text-zinc-400" />
+                  </div>
+                  <h3 className="text-xl font-medium text-white mb-2">
+                    Expert Maintenance
+                  </h3>
+                  <p className="text-zinc-400">
+                    Our certified technicians provide comprehensive maintenance
+                    services to keep your vehicle in peak condition.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-zinc-900 border-zinc-800 transition-all duration-300 hover:border-zinc-700">
+                <CardContent className="pt-6">
+                  <div className="size-12 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                    <Shield className="size-6 text-zinc-400" />
+                  </div>
+                  <h3 className="text-xl font-medium text-white mb-2">
+                    Extended Warranty
+                  </h3>
+                  <p className="text-zinc-400">
+                    Drive with confidence knowing your investment is protected
+                    by our comprehensive warranty program.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center text-zinc-600 text-[18px]">
-            <p className="flex justify-center">
-              <Copyright />
-              {new Date().getFullYear()} Luxury Automotive. All rights reserved.
+      </div>
+
+      <Separator className="bg-zinc-800" />
+
+      <footer className="w-full bg-zinc-950 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center text-zinc-600 text-sm">
+            <p className="flex justify-center items-center gap-1">
+              <Copyright className="size-4" />
+              <span>
+                {new Date().getFullYear()} Luxury Automotive. All rights
+                reserved.
+              </span>
             </p>
             <p className="mt-2">
               Engineered for those who drive the extraordinary.
             </p>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

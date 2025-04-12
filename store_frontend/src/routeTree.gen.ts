@@ -11,22 +11,19 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as ProfileImport } from './routes/profile'
 import { Route as ContactImport } from './routes/contact'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
-import { Route as CarsProductDetailImport } from './routes/cars/productDetail'
+import { Route as ProfileIndexImport } from './routes/profile/index'
+import { Route as ProfileUsernameImport } from './routes/profile/$username'
 import { Route as CarsLuxuryCarsImport } from './routes/cars/luxuryCars'
+import { Route as CarsFutureclassicCarsImport } from './routes/cars/futureclassicCars'
 import { Route as CarsElectricalCarsImport } from './routes/cars/electricalCars'
+import { Route as CarsConceptCarsImport } from './routes/cars/conceptCars'
 import { Route as CarsClassicCarsImport } from './routes/cars/classicCars'
+import { Route as CarsIdImport } from './routes/cars/$id'
 
 // Create/Update Routes
-
-const ProfileRoute = ProfileImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const ContactRoute = ContactImport.update({
   id: '/contact',
@@ -46,9 +43,15 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CarsProductDetailRoute = CarsProductDetailImport.update({
-  id: '/cars/productDetail',
-  path: '/cars/productDetail',
+const ProfileIndexRoute = ProfileIndexImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProfileUsernameRoute = ProfileUsernameImport.update({
+  id: '/profile/$username',
+  path: '/profile/$username',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -58,15 +61,33 @@ const CarsLuxuryCarsRoute = CarsLuxuryCarsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const CarsFutureclassicCarsRoute = CarsFutureclassicCarsImport.update({
+  id: '/cars/futureclassicCars',
+  path: '/cars/futureclassicCars',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const CarsElectricalCarsRoute = CarsElectricalCarsImport.update({
   id: '/cars/electricalCars',
   path: '/cars/electricalCars',
   getParentRoute: () => rootRoute,
 } as any)
 
+const CarsConceptCarsRoute = CarsConceptCarsImport.update({
+  id: '/cars/conceptCars',
+  path: '/cars/conceptCars',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const CarsClassicCarsRoute = CarsClassicCarsImport.update({
   id: '/cars/classicCars',
   path: '/cars/classicCars',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CarsIdRoute = CarsIdImport.update({
+  id: '/cars/$id',
+  path: '/cars/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,11 +116,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactImport
       parentRoute: typeof rootRoute
     }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileImport
+    '/cars/$id': {
+      id: '/cars/$id'
+      path: '/cars/$id'
+      fullPath: '/cars/$id'
+      preLoaderRoute: typeof CarsIdImport
       parentRoute: typeof rootRoute
     }
     '/cars/classicCars': {
@@ -109,11 +130,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsClassicCarsImport
       parentRoute: typeof rootRoute
     }
+    '/cars/conceptCars': {
+      id: '/cars/conceptCars'
+      path: '/cars/conceptCars'
+      fullPath: '/cars/conceptCars'
+      preLoaderRoute: typeof CarsConceptCarsImport
+      parentRoute: typeof rootRoute
+    }
     '/cars/electricalCars': {
       id: '/cars/electricalCars'
       path: '/cars/electricalCars'
       fullPath: '/cars/electricalCars'
       preLoaderRoute: typeof CarsElectricalCarsImport
+      parentRoute: typeof rootRoute
+    }
+    '/cars/futureclassicCars': {
+      id: '/cars/futureclassicCars'
+      path: '/cars/futureclassicCars'
+      fullPath: '/cars/futureclassicCars'
+      preLoaderRoute: typeof CarsFutureclassicCarsImport
       parentRoute: typeof rootRoute
     }
     '/cars/luxuryCars': {
@@ -123,11 +158,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsLuxuryCarsImport
       parentRoute: typeof rootRoute
     }
-    '/cars/productDetail': {
-      id: '/cars/productDetail'
-      path: '/cars/productDetail'
-      fullPath: '/cars/productDetail'
-      preLoaderRoute: typeof CarsProductDetailImport
+    '/profile/$username': {
+      id: '/profile/$username'
+      path: '/profile/$username'
+      fullPath: '/profile/$username'
+      preLoaderRoute: typeof ProfileUsernameImport
+      parentRoute: typeof rootRoute
+    }
+    '/profile/': {
+      id: '/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -139,22 +181,28 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/profile': typeof ProfileRoute
+  '/cars/$id': typeof CarsIdRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
+  '/cars/conceptCars': typeof CarsConceptCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
+  '/cars/futureclassicCars': typeof CarsFutureclassicCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
-  '/cars/productDetail': typeof CarsProductDetailRoute
+  '/profile/$username': typeof ProfileUsernameRoute
+  '/profile': typeof ProfileIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/profile': typeof ProfileRoute
+  '/cars/$id': typeof CarsIdRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
+  '/cars/conceptCars': typeof CarsConceptCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
+  '/cars/futureclassicCars': typeof CarsFutureclassicCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
-  '/cars/productDetail': typeof CarsProductDetailRoute
+  '/profile/$username': typeof ProfileUsernameRoute
+  '/profile': typeof ProfileIndexRoute
 }
 
 export interface FileRoutesById {
@@ -162,11 +210,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/profile': typeof ProfileRoute
+  '/cars/$id': typeof CarsIdRoute
   '/cars/classicCars': typeof CarsClassicCarsRoute
+  '/cars/conceptCars': typeof CarsConceptCarsRoute
   '/cars/electricalCars': typeof CarsElectricalCarsRoute
+  '/cars/futureclassicCars': typeof CarsFutureclassicCarsRoute
   '/cars/luxuryCars': typeof CarsLuxuryCarsRoute
-  '/cars/productDetail': typeof CarsProductDetailRoute
+  '/profile/$username': typeof ProfileUsernameRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -175,31 +226,40 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
-    | '/profile'
+    | '/cars/$id'
     | '/cars/classicCars'
+    | '/cars/conceptCars'
     | '/cars/electricalCars'
+    | '/cars/futureclassicCars'
     | '/cars/luxuryCars'
-    | '/cars/productDetail'
+    | '/profile/$username'
+    | '/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/contact'
-    | '/profile'
+    | '/cars/$id'
     | '/cars/classicCars'
+    | '/cars/conceptCars'
     | '/cars/electricalCars'
+    | '/cars/futureclassicCars'
     | '/cars/luxuryCars'
-    | '/cars/productDetail'
+    | '/profile/$username'
+    | '/profile'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/contact'
-    | '/profile'
+    | '/cars/$id'
     | '/cars/classicCars'
+    | '/cars/conceptCars'
     | '/cars/electricalCars'
+    | '/cars/futureclassicCars'
     | '/cars/luxuryCars'
-    | '/cars/productDetail'
+    | '/profile/$username'
+    | '/profile/'
   fileRoutesById: FileRoutesById
 }
 
@@ -207,22 +267,28 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
-  ProfileRoute: typeof ProfileRoute
+  CarsIdRoute: typeof CarsIdRoute
   CarsClassicCarsRoute: typeof CarsClassicCarsRoute
+  CarsConceptCarsRoute: typeof CarsConceptCarsRoute
   CarsElectricalCarsRoute: typeof CarsElectricalCarsRoute
+  CarsFutureclassicCarsRoute: typeof CarsFutureclassicCarsRoute
   CarsLuxuryCarsRoute: typeof CarsLuxuryCarsRoute
-  CarsProductDetailRoute: typeof CarsProductDetailRoute
+  ProfileUsernameRoute: typeof ProfileUsernameRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
-  ProfileRoute: ProfileRoute,
+  CarsIdRoute: CarsIdRoute,
   CarsClassicCarsRoute: CarsClassicCarsRoute,
+  CarsConceptCarsRoute: CarsConceptCarsRoute,
   CarsElectricalCarsRoute: CarsElectricalCarsRoute,
+  CarsFutureclassicCarsRoute: CarsFutureclassicCarsRoute,
   CarsLuxuryCarsRoute: CarsLuxuryCarsRoute,
-  CarsProductDetailRoute: CarsProductDetailRoute,
+  ProfileUsernameRoute: ProfileUsernameRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -238,11 +304,14 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/contact",
-        "/profile",
+        "/cars/$id",
         "/cars/classicCars",
+        "/cars/conceptCars",
         "/cars/electricalCars",
+        "/cars/futureclassicCars",
         "/cars/luxuryCars",
-        "/cars/productDetail"
+        "/profile/$username",
+        "/profile/"
       ]
     },
     "/": {
@@ -254,20 +323,29 @@ export const routeTree = rootRoute
     "/contact": {
       "filePath": "contact.tsx"
     },
-    "/profile": {
-      "filePath": "profile.tsx"
+    "/cars/$id": {
+      "filePath": "cars/$id.tsx"
     },
     "/cars/classicCars": {
       "filePath": "cars/classicCars.tsx"
     },
+    "/cars/conceptCars": {
+      "filePath": "cars/conceptCars.tsx"
+    },
     "/cars/electricalCars": {
       "filePath": "cars/electricalCars.tsx"
+    },
+    "/cars/futureclassicCars": {
+      "filePath": "cars/futureclassicCars.tsx"
     },
     "/cars/luxuryCars": {
       "filePath": "cars/luxuryCars.tsx"
     },
-    "/cars/productDetail": {
-      "filePath": "cars/productDetail.tsx"
+    "/profile/$username": {
+      "filePath": "profile/$username.tsx"
+    },
+    "/profile/": {
+      "filePath": "profile/index.tsx"
     }
   }
 }
