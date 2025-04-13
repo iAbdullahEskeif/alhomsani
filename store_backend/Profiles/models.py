@@ -23,7 +23,8 @@ class Profile(models.Model):
     location = models.CharField(max_length=100, blank=True, null=True)
     contact_info = models.CharField(max_length=255, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.URLField(blank=True, null=True)
+    profile_picture_url = models.URLField(blank=True, null=True)
+    profile_picture_public_id=models.CharField(max_length=255, blank=True, null=True)
     favorite_cars = models.ManyToManyField(Product, related_name='favorited_by', blank=True)
     bookmarked_cars = models.ManyToManyField(Product, related_name='bookmarked_by', blank=True)
     
