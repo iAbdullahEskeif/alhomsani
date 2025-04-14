@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'payment.apps.PaymentConfig',
+    'django_extensions',
     
 ]
 
