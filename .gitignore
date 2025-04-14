@@ -9,7 +9,7 @@ create_project.sh
 setup.sh
 store_frontend/.env
 store_backend/.env
-
+store_backend/requirements.txt
 # Python/Django
 __pycache__/
 *.py[cod]
