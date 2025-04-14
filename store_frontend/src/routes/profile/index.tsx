@@ -13,10 +13,12 @@ function ProfileIndexRedirect() {
 
   useEffect(() => {
     if (isLoaded && user?.username) {
-      navigate({ to: "/profile/$username", params: { username: user.username } });
+      navigate({
+        to: "/profile/$username",
+        params: { username: user.username },
+      });
     }
   }, [isLoaded, user, navigate]);
 
   return <p>Redirecting to your profile...</p>;
 }
-

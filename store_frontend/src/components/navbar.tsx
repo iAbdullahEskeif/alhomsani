@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 
 import { useState } from "react";
@@ -28,7 +30,7 @@ const Navbar: React.FC = () => {
           to="/"
           className="text-white text-lg font-medium flex items-center"
         >
-          <Gauge className="mr-2 text-zinc-400" size={20} />
+          <Gauge className="mr-2 text-amber-600" size={20} />
           <span>Luxury Automotive</span>
         </Link>
 
@@ -38,7 +40,7 @@ const Navbar: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden text-zinc-400 hover:text-white hover:bg-zinc-800"
+              className="md:hidden text-amber-500 hover:text-amber-300 hover:bg-zinc-800"
             >
               <Menu size={20} />
               <span className="sr-only">Toggle menu</span>
@@ -56,13 +58,13 @@ const Navbar: React.FC = () => {
                     className="text-white font-medium flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Gauge className="mr-2 text-zinc-400" size={18} />
+                    <Gauge className="mr-2 text-amber-600" size={18} />
                     <span>Luxury Automotive</span>
                   </Link>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    className="text-amber-500 hover:text-amber-300 hover:bg-zinc-800"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <X size={18} />
@@ -74,27 +76,27 @@ const Navbar: React.FC = () => {
                 <div className="space-y-1 px-2">
                   <Link
                     to="/"
-                    className="flex items-center p-3 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                    className="flex items-center p-3 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors"
                     onClick={() => setIsMenuOpen(false)}
-                    activeProps={{ className: "bg-zinc-800 text-white" }}
+                    activeProps={{ className: "bg-zinc-800 text-amber-300" }}
                   >
                     <Home className="mr-3 size-5" />
                     Home
                   </Link>
                   <Link
                     to="/about"
-                    className="flex items-center p-3 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                    className="flex items-center p-3 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors"
                     onClick={() => setIsMenuOpen(false)}
-                    activeProps={{ className: "bg-zinc-800 text-white" }}
+                    activeProps={{ className: "bg-zinc-800 text-amber-300" }}
                   >
                     <Info className="mr-3 size-5" />
                     About
                   </Link>
                   <Link
                     to="/contact"
-                    className="flex items-center p-3 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                    className="flex items-center p-3 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors"
                     onClick={() => setIsMenuOpen(false)}
-                    activeProps={{ className: "bg-zinc-800 text-white" }}
+                    activeProps={{ className: "bg-zinc-800 text-amber-300" }}
                   >
                     <Mail className="mr-3 size-5" />
                     Contact
@@ -102,9 +104,9 @@ const Navbar: React.FC = () => {
                   {isSignedIn && (
                     <Link
                       to="/profile"
-                      className="flex items-center p-3 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                      className="flex items-center p-3 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors"
                       onClick={() => setIsMenuOpen(false)}
-                      activeProps={{ className: "bg-zinc-800 text-white" }}
+                      activeProps={{ className: "bg-zinc-800 text-amber-300" }}
                     >
                       <User className="mr-3 size-5" />
                       Profile
@@ -117,7 +119,7 @@ const Navbar: React.FC = () => {
                   <SignOutButton redirectUrl="/">
                     <Button
                       variant="secondary"
-                      className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700 justify-start"
+                      className="w-full bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600 justify-start"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <LogOut className="mr-2 size-4" />
@@ -128,7 +130,7 @@ const Navbar: React.FC = () => {
                   <SignInButton mode="modal">
                     <Button
                       variant="secondary"
-                      className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700 justify-start"
+                      className="w-full bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600 justify-start"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <LogIn className="mr-2 size-4" />
@@ -145,24 +147,24 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-1">
           <Link
             to="/"
-            className="px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors flex items-center"
-            activeProps={{ className: "bg-zinc-800 text-white" }}
+            className="px-3 py-2 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors flex items-center"
+            activeProps={{ className: "bg-zinc-800 text-amber-300" }}
           >
             <Home className="mr-1 size-4" />
             Home
           </Link>
           <Link
             to="/about"
-            className="px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors flex items-center"
-            activeProps={{ className: "bg-zinc-800 text-white" }}
+            className="px-3 py-2 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors flex items-center"
+            activeProps={{ className: "bg-zinc-800 text-amber-300" }}
           >
             <Info className="mr-1 size-4" />
             About
           </Link>
           <Link
             to="/contact"
-            className="px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors flex items-center"
-            activeProps={{ className: "bg-zinc-800 text-white" }}
+            className="px-3 py-2 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors flex items-center"
+            activeProps={{ className: "bg-zinc-800 text-amber-300" }}
           >
             <Mail className="mr-1 size-4" />
             Contact
@@ -170,8 +172,8 @@ const Navbar: React.FC = () => {
           {isSignedIn && (
             <Link
               to="/profile"
-              className="px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors flex items-center"
-              activeProps={{ className: "bg-zinc-800 text-white" }}
+              className="px-3 py-2 text-zinc-400 hover:text-amber-200 hover:bg-zinc-800 rounded-md transition-colors flex items-center"
+              activeProps={{ className: "bg-zinc-800 text-amber-300" }}
             >
               <User className="mr-1 size-4" />
               Profile
@@ -184,7 +186,7 @@ const Navbar: React.FC = () => {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+                  className="bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600"
                 >
                   <LogOut className="mr-1 size-4" />
                   Logout
@@ -195,7 +197,7 @@ const Navbar: React.FC = () => {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+                  className="bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600"
                 >
                   <LogIn className="mr-1 size-4" />
                   Login

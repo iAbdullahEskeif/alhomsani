@@ -520,13 +520,13 @@ function ProfilePage() {
       case "purchase":
         return <ShoppingCart className="size-4 text-emerald-500" />;
       case "view":
-        return <Eye className="size-4 text-zinc-400" />;
+        return <Eye className="size-4 text-amber-500" />;
       case "bookmark":
-        return <Bookmark className="size-4 text-zinc-400" />;
+        return <Bookmark className="size-4 text-amber-500" />;
       case "favorite":
-        return <Heart className="size-4 text-zinc-400" />;
+        return <Heart className="size-4 text-amber-500" />;
       default:
-        return <Clock className="size-4 text-zinc-400" />;
+        return <Clock className="size-4 text-amber-500" />;
     }
   };
 
@@ -549,8 +549,8 @@ function ProfilePage() {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="size-12 text-zinc-700 animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Loading profile...</p>
+          <Loader2 className="size-12 text-amber-700/50 animate-spin mx-auto mb-4" />
+          <p className="text-amber-400/70">Loading profile...</p>
         </div>
       </div>
     );
@@ -570,7 +570,7 @@ function ProfilePage() {
           <CardFooter>
             <Button
               variant="secondary"
-              className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+              className="w-full bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600"
               onClick={() => window.location.reload()}
             >
               Refresh Page
@@ -592,10 +592,10 @@ function ProfilePage() {
                 <div className="flex justify-between items-start mb-6">
                   <Avatar className="size-20 bg-zinc-800">
                     <AvatarImage
-                      src={profile.profile_picture_url}
+                      src={profile.profile_picture_url || "/placeholder.svg"}
                       alt={profile.name || username}
                     />
-                    <AvatarFallback className="bg-zinc-800 text-zinc-400">
+                    <AvatarFallback className="bg-zinc-800 text-amber-500">
                       <User className="size-12" strokeWidth={1.5} />
                     </AvatarFallback>
                   </Avatar>
@@ -604,7 +604,7 @@ function ProfilePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white"
+                      className="border-amber-700/50 bg-zinc-800 text-amber-200 hover:bg-amber-900/30 hover:text-amber-100"
                       onClick={() => setIsEditing(true)}
                     >
                       <Edit className="size-4 mr-2" />
@@ -615,7 +615,7 @@ function ProfilePage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-zinc-700 text-zinc-800  hover:bg-zinc-800 hover:text-white"
+                        className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                         onClick={() => setIsEditing(false)}
                       >
                         <X className="size-4 mr-1" />
@@ -624,7 +624,7 @@ function ProfilePage() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        className="bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+                        className="bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600"
                         onClick={handleUpdateProfile}
                         disabled={isUpdating}
                       >
@@ -659,7 +659,7 @@ function ProfilePage() {
                             name: e.target.value,
                           })
                         }
-                        className="bg-zinc-800 border-zinc-700 text-white"
+                        className="bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                       />
                     </div>
                     <div>
@@ -675,7 +675,7 @@ function ProfilePage() {
                             location: e.target.value,
                           })
                         }
-                        className="bg-zinc-800 border-zinc-700 text-white"
+                        className="bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                       />
                     </div>
                     <div>
@@ -691,7 +691,7 @@ function ProfilePage() {
                             contact_info: e.target.value,
                           })
                         }
-                        className="bg-zinc-800 border-zinc-700 text-white"
+                        className="bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                       />
                     </div>
                     <div>
@@ -707,7 +707,7 @@ function ProfilePage() {
                             bio: e.target.value,
                           })
                         }
-                        className="bg-zinc-800 border-zinc-700 text-white min-h-[100px]"
+                        className="bg-zinc-800 border-zinc-700 text-white min-h-[100px] focus:border-amber-500"
                       />
                     </div>
                     <div>
@@ -726,8 +726,12 @@ function ProfilePage() {
                               profile_picture: file,
                             });
                         }}
-                        className="bg-zinc-800 border-zinc-700 text-white"
-                        placeholder="https://example.com/profile.jpg"
+                        className="bg-zinc-800 border-zinc-700 text-white focus:border-amber-500
+                        file:mr-4 file:py-1 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-medium
+                        file:bg-amber-700 file:text-amber-100
+                        hover:file:bg-amber-600"
                       />
                     </div>
                   </div>
@@ -740,18 +744,18 @@ function ProfilePage() {
                     <div className="space-y-3 mb-4">
                       {profile.location && (
                         <div className="flex items-center text-zinc-400">
-                          <MapPin className="size-4 mr-2 text-zinc-500" />
+                          <MapPin className="size-4 mr-2 text-amber-600" />
                           <span>{profile.location}</span>
                         </div>
                       )}
                       {profile.contact_info && (
                         <div className="flex items-center text-zinc-400">
-                          <Mail className="size-4 mr-2 text-zinc-500" />
+                          <Mail className="size-4 mr-2 text-amber-600" />
                           <span>{profile.contact_info}</span>
                         </div>
                       )}
                       <div className="flex items-center text-zinc-400">
-                        <Calendar className="size-4 mr-2 text-zinc-500" />
+                        <Calendar className="size-4 mr-2 text-amber-600" />
                         <span>
                           Member since {formatDate(profile.member_since)}
                         </span>
@@ -759,7 +763,7 @@ function ProfilePage() {
                     </div>
 
                     {profile.bio && (
-                      <div className="mt-4 text-zinc-400 border-l-2 border-zinc-800 pl-4">
+                      <div className="mt-4 text-zinc-400 border-l-2 border-amber-800/30 pl-4">
                         {profile.bio}
                       </div>
                     )}
@@ -777,19 +781,19 @@ function ProfilePage() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-zinc-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-medium text-white">
+                    <div className="text-2xl font-medium text-amber-300">
                       {profile.favorite_cars.length}
                     </div>
                     <div className="text-sm text-zinc-400">Favorite Cars</div>
                   </div>
                   <div className="bg-zinc-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-medium text-white">
+                    <div className="text-2xl font-medium text-amber-300">
                       {profile.bookmarked_cars.length}
                     </div>
                     <div className="text-sm text-zinc-400">Bookmarked Cars</div>
                   </div>
                   <div className="bg-zinc-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-medium text-white">
+                    <div className="text-2xl font-medium text-amber-300">
                       {
                         activityLog.filter((a) => a.action === "purchase")
                           .length
@@ -798,7 +802,7 @@ function ProfilePage() {
                     <div className="text-sm text-zinc-400">Purchases</div>
                   </div>
                   <div className="bg-zinc-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-medium text-white">
+                    <div className="text-2xl font-medium text-amber-300">
                       {activityLog.length}
                     </div>
                     <div className="text-sm text-zinc-400">Activities</div>
@@ -814,19 +818,19 @@ function ProfilePage() {
               <TabsList className="w-full bg-zinc-900 border border-zinc-800 p-1 mb-6">
                 <TabsTrigger
                   value="activity"
-                  className="flex-1 text-zinc-300 hover:text-white data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
+                  className="flex-1 text-zinc-300 hover:text-white data-[state=active]:bg-amber-700 data-[state=active]:text-amber-100"
                 >
                   Activity
                 </TabsTrigger>
                 <TabsTrigger
                   value="favorites"
-                  className="flex-1 text-zinc-300 hover:text-white data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
+                  className="flex-1 text-zinc-300 hover:text-white data-[state=active]:bg-amber-700 data-[state=active]:text-amber-100"
                 >
                   Favorites
                 </TabsTrigger>
                 <TabsTrigger
                   value="bookmarks"
-                  className="flex-1 text-zinc-300 hover:text-white data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
+                  className="flex-1 text-zinc-300 hover:text-white data-[state=active]:bg-amber-700 data-[state=active]:text-amber-100"
                 >
                   Bookmarks
                 </TabsTrigger>
@@ -859,7 +863,7 @@ function ProfilePage() {
                                   <p className="text-white font-medium">
                                     {getActionText(activity.action)}
                                   </p>
-                                  <p className="text-zinc-500 text-sm">
+                                  <p className="text-amber-500 text-sm">
                                     Car:{" "}
                                     {getCarNameFromActivity(activity.product)}
                                   </p>
@@ -884,7 +888,7 @@ function ProfilePage() {
                               variant="ghost"
                               onClick={() => fetchNextPage()}
                               disabled={isFetchingNextPage || !hasNextPage}
-                              className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+                              className="text-amber-500 hover:text-amber-300 hover:bg-zinc-800"
                             >
                               {isFetchingNextPage ? "Loading..." : "Load More"}
                               <ChevronRight className="ml-1 size-4" />
@@ -894,7 +898,7 @@ function ProfilePage() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Clock className="size-12 text-zinc-700 mx-auto mb-3" />
+                        <Clock className="size-12 text-amber-700/50 mx-auto mb-3" />
                         <p className="text-zinc-400">
                           No activity recorded yet
                         </p>
@@ -925,7 +929,7 @@ function ProfilePage() {
                   <CardContent>
                     {isFavoritesLoading ? (
                       <div className="text-center py-8">
-                        <Loader2 className="size-12 text-zinc-700 mx-auto mb-3 animate-spin" />
+                        <Loader2 className="size-12 text-amber-700/50 mx-auto mb-3 animate-spin" />
                         <p className="text-zinc-400">
                           Loading favorite cars...
                         </p>
@@ -939,7 +943,7 @@ function ProfilePage() {
                           >
                             <div className="relative h-40">
                               <img
-                                src={car.image_url}
+                                src={car.image_url || "/placeholder.svg"}
                                 alt={car.name}
                                 className="w-full h-full object-cover"
                               />
@@ -950,7 +954,7 @@ function ProfilePage() {
                                   className="absolute top-2 right-2 bg-zinc-900/80 hover:bg-zinc-900 size-8"
                                   onClick={() => toggleFavorite(car.id, true)}
                                 >
-                                  <Heart className="size-4 text-zinc-300 fill-zinc-300" />
+                                  <Heart className="size-4 text-amber-400 fill-amber-400" />
                                 </Button>
                               )}
                             </div>
@@ -958,14 +962,14 @@ function ProfilePage() {
                               <h3 className="text-white font-medium mb-1">
                                 {car.name}
                               </h3>
-                              <p className="text-zinc-400 text-sm mb-2">
+                              <p className="text-amber-300 text-sm mb-2">
                                 ${Number(car.price).toLocaleString()}
                               </p>
 
                               <div className="flex justify-between items-center mt-2">
                                 <Badge
                                   variant="outline"
-                                  className="bg-zinc-900 text-zinc-400 border-zinc-700"
+                                  className="bg-zinc-900 text-amber-400 border-amber-800/50"
                                 >
                                   <Car className="size-3 mr-1" />
                                   ID: {car.id}
@@ -973,7 +977,7 @@ function ProfilePage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="text-zinc-400 hover:text-white hover:bg-zinc-700 h-8 px-2"
+                                  className="text-zinc-400 hover:text-amber-200 hover:bg-zinc-700 h-8 px-2"
                                 >
                                   View Details
                                 </Button>
@@ -984,7 +988,7 @@ function ProfilePage() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Heart className="size-12 text-zinc-700 mx-auto mb-3" />
+                        <Heart className="size-12 text-amber-700/50 mx-auto mb-3" />
                         <p className="text-zinc-400">No favorite cars yet</p>
                         <p className="text-zinc-500 text-sm mt-1">
                           {isCurrentUser
@@ -1013,7 +1017,7 @@ function ProfilePage() {
                   <CardContent>
                     {isBookmarksLoading ? (
                       <div className="text-center py-8">
-                        <Loader2 className="size-12 text-zinc-700 mx-auto mb-3 animate-spin" />
+                        <Loader2 className="size-12 text-amber-700/50 mx-auto mb-3 animate-spin" />
                         <p className="text-zinc-400">
                           Loading bookmarked cars...
                         </p>
@@ -1027,7 +1031,7 @@ function ProfilePage() {
                           >
                             <div className="relative h-40">
                               <img
-                                src={car.image_url}
+                                src={car.image_url || "/placeholder.svg"}
                                 alt={car.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
@@ -1042,7 +1046,7 @@ function ProfilePage() {
                                   className="absolute top-2 right-2 bg-zinc-900/80 hover:bg-zinc-900 size-8"
                                   onClick={() => toggleBookmark(car.id, true)}
                                 >
-                                  <Bookmark className="size-4 text-zinc-300 fill-zinc-300" />
+                                  <Bookmark className="size-4 text-amber-400 fill-amber-400" />
                                 </Button>
                               )}
                             </div>
@@ -1050,13 +1054,13 @@ function ProfilePage() {
                               <h3 className="text-white font-medium mb-1">
                                 {car.name}
                               </h3>
-                              <p className="text-zinc-400 text-sm mb-2">
+                              <p className="text-amber-300 text-sm mb-2">
                                 ${Number(car.price).toLocaleString()}
                               </p>
                               <div className="flex justify-between items-center mt-2">
                                 <Badge
                                   variant="outline"
-                                  className="bg-zinc-900 text-zinc-400 border-zinc-700"
+                                  className="bg-zinc-900 text-amber-400 border-amber-800/50"
                                 >
                                   <Car className="size-3 mr-1" />
                                   ID: {car.id}
@@ -1064,7 +1068,7 @@ function ProfilePage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="text-zinc-400 hover:text-white hover:bg-zinc-700 h-8 px-2"
+                                  className="text-zinc-400 hover:text-amber-200 hover:bg-zinc-700 h-8 px-2"
                                 >
                                   View Details
                                 </Button>
@@ -1075,7 +1079,7 @@ function ProfilePage() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Bookmark className="size-12 text-zinc-700 mx-auto mb-3" />
+                        <Bookmark className="size-12 text-amber-700/50 mx-auto mb-3" />
                         <p className="text-zinc-400">No bookmarked cars yet</p>
                         <p className="text-zinc-500 text-sm mt-1">
                           {isCurrentUser

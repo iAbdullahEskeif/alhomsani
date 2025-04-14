@@ -810,10 +810,10 @@ function ProductDetail() {
                   <Button
                     onClick={toggleFavorite}
                     variant="outline"
-                    className={`border-amber-700 ${isFavorite ? "bg-amber-800/30 text-amber-300" : "text-zinc-400 hover:text-amber-300"} hover:bg-amber-900/20`}
+                    className={`border-amber-700 bg-zine-500 ${isFavorite ? "bg-amber-800/30 text-amber-300" : "text-zinc-400 hover:text-amber-300"} hover:bg-amber-900/20`}
                   >
                     <Heart
-                      className={`mr-2 h-4 w-4 ${isFavorite ? "fill-amber-300" : ""}`}
+                      className={`mr-2 h-4 w-4 ${isFavorite ? "fill-amber-400" : ""}`}
                     />
                     {isFavorite ? "Liked" : "Like this car"}
                   </Button>

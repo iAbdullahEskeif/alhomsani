@@ -45,6 +45,7 @@ import {
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { useIsVisible } from "@/components/hooks/useisvisible";
 
 interface Product {
   id: number;
@@ -100,6 +101,9 @@ interface NewProduct {
 }
 
 function LuxuryCars() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isVisible = useIsVisible(ref);
+
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [newProduct, setNewProduct] = useState<NewProduct>({
     name: "",
@@ -565,7 +569,12 @@ function LuxuryCars() {
 
   return (
     <div className="min-h-screen bg-zinc-950">
-      <div className="w-full max-w-6xl mx-auto p-4">
+      <div
+        ref={ref}
+        className={`max-w-6xl mx-auto p-4 transition-opacity ease-in duration-500 ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <h2 className="text-3xl font-medium text-white mb-6">Luxury Cars</h2>
 
         {error && (
@@ -582,7 +591,7 @@ function LuxuryCars() {
           <Button
             onClick={handleAddProductClick}
             variant="secondary"
-            className="mb-6 bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+            className="mb-6 bg-zinc-800 text-amber-200 border-zinc-700 hover:bg-zinc-700"
           >
             <Plus className="mr-2 size-4" />
             Add Product
@@ -601,19 +610,19 @@ function LuxuryCars() {
                   <TabsList className="grid grid-cols-3 mb-4 bg-zinc-800">
                     <TabsTrigger
                       value="basic"
-                      className="data-[state=active]:bg-zinc-500 text-zinc-400"
+                      className="data-[state=active]:bg-amber-700 data-[state=active]:text-amber-100 text-zinc-400"
                     >
                       Basic Info
                     </TabsTrigger>
                     <TabsTrigger
                       value="specs"
-                      className="data-[state=active]:bg-zinc-700 text-zinc-400"
+                      className="data-[state=active]:bg-amber-700 data-[state=active]:text-amber-100 text-zinc-400"
                     >
                       Technical Specs
                     </TabsTrigger>
                     <TabsTrigger
                       value="features"
-                      className="data-[state=active]:bg-zinc-700 text-zinc-400"
+                      className="data-[state=active]:bg-amber-700 data-[state=active]:text-amber-100 text-zinc-400"
                     >
                       Features
                     </TabsTrigger>
@@ -627,7 +636,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Gauge className="size-5 text-zinc-500" />
+                            <Gauge className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="name"
@@ -639,7 +648,7 @@ function LuxuryCars() {
                               })
                             }
                             required
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="Enter vehicle name"
                           />
                         </div>
@@ -651,7 +660,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Tag className="size-5 text-zinc-500" />
+                            <Tag className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="sku"
@@ -663,7 +672,7 @@ function LuxuryCars() {
                               })
                             }
                             required
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="Enter SKU"
                           />
                         </div>
@@ -675,7 +684,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <DollarSign className="size-5 text-zinc-500" />
+                            <DollarSign className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="price"
@@ -690,7 +699,7 @@ function LuxuryCars() {
                               })
                             }
                             required
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="Enter price"
                           />
                         </div>
@@ -702,7 +711,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Package className="size-5 text-zinc-500" />
+                            <Package className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="stock"
@@ -716,7 +725,7 @@ function LuxuryCars() {
                               })
                             }
                             required
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="Enter stock quantity"
                           />
                         </div>
@@ -728,7 +737,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Layers className="size-5 text-zinc-500" />
+                            <Layers className="size-5 text-amber-600" />
                           </div>
                           <Select
                             value={newProduct.category.toString()}
@@ -739,7 +748,7 @@ function LuxuryCars() {
                               })
                             }
                           >
-                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
@@ -757,7 +766,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Package className="size-5 text-zinc-500" />
+                            <Package className="size-5 text-amber-600" />
                           </div>
                           <Select
                             value={newProduct.availability}
@@ -770,7 +779,7 @@ function LuxuryCars() {
                               })
                             }
                           >
-                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500">
                               <SelectValue placeholder="Select availability" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
@@ -789,7 +798,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Car className="size-5 text-zinc-500" />
+                            <Car className="size-5 text-amber-600" />
                           </div>
                           <Select
                             value={newProduct.car_type}
@@ -803,7 +812,7 @@ function LuxuryCars() {
                               })
                             }
                           >
-                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500">
                               <SelectValue placeholder="Select car type" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
@@ -824,7 +833,7 @@ function LuxuryCars() {
                       </Label>
                       <div className="relative">
                         <div className="absolute top-3 left-3 flex items-start pointer-events-none">
-                          <FileText className="size-5 text-zinc-500" />
+                          <FileText className="size-5 text-amber-600" />
                         </div>
                         <Textarea
                           id="description"
@@ -835,7 +844,7 @@ function LuxuryCars() {
                               description: e.target.value,
                             })
                           }
-                          className="pl-10 bg-zinc-800 border-zinc-700 text-white min-h-[120px]"
+                          className="pl-10 bg-zinc-800 border-zinc-700 text-white min-h-[120px] focus:border-amber-500"
                           placeholder="Enter vehicle description"
                         />
                       </div>
@@ -850,7 +859,7 @@ function LuxuryCars() {
                       </Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                          <ImageIcon className="size-5 text-zinc-400" />
+                          <ImageIcon className="size-5 text-amber-600" />
                         </div>
                         <Input
                           id="image"
@@ -866,9 +875,9 @@ function LuxuryCars() {
                           file:mr-4 file:py-1 file:px-4
                           file:rounded-r-md file:rounded-l-md file:border-0
                           file:text-sm file:font-medium
-                          file:bg-zinc-700 file:text-zinc-200
-                          hover:file:bg-zinc-200 hover:file:text-zinc-700
-                          focus:border-zinc-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                          file:bg-amber-700 file:text-amber-100
+                          hover:file:bg-amber-600 hover:file:text-amber-50
+                          focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
                           transition-all
                           placeholder-zinc-500
                           disabled:opacity-50"
@@ -889,7 +898,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Gauge className="size-5 text-zinc-500" />
+                            <Gauge className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="engine"
@@ -900,7 +909,7 @@ function LuxuryCars() {
                                 engine: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 4.0L Twin-Turbo V8"
                           />
                         </div>
@@ -912,7 +921,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Zap className="size-5 text-zinc-500" />
+                            <Zap className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="power"
@@ -923,7 +932,7 @@ function LuxuryCars() {
                                 power: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 496 hp @ 5,500 rpm"
                           />
                         </div>
@@ -935,7 +944,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Gauge className="size-5 text-zinc-500" />
+                            <Gauge className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="torque"
@@ -946,7 +955,7 @@ function LuxuryCars() {
                                 torque: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 700 Nm @ 2,000-4,500 rpm"
                           />
                         </div>
@@ -958,7 +967,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Gauge className="size-5 text-zinc-500" />
+                            <Gauge className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="transmission"
@@ -969,7 +978,7 @@ function LuxuryCars() {
                                 transmission: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 9G-TRONIC 9-Speed Automatic"
                           />
                         </div>
@@ -984,7 +993,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Clock className="size-5 text-zinc-500" />
+                            <Clock className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="acceleration_0_100"
@@ -995,7 +1004,7 @@ function LuxuryCars() {
                                 acceleration_0_100: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 4.3 seconds"
                           />
                         </div>
@@ -1007,7 +1016,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Gauge className="size-5 text-zinc-500" />
+                            <Gauge className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="top_speed"
@@ -1018,7 +1027,7 @@ function LuxuryCars() {
                                 top_speed: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 250 km/h (electronically limited)"
                           />
                         </div>
@@ -1030,7 +1039,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Fuel className="size-5 text-zinc-500" />
+                            <Fuel className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="fuel_economy"
@@ -1041,7 +1050,7 @@ function LuxuryCars() {
                                 fuel_economy: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 10.2 L/100km (combined)"
                           />
                         </div>
@@ -1053,7 +1062,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Ruler className="size-5 text-zinc-500" />
+                            <Ruler className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="dimensions"
@@ -1064,7 +1073,7 @@ function LuxuryCars() {
                                 dimensions: e.target.value,
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 5,289 mm × 1,954 mm × 1,503 mm"
                           />
                         </div>
@@ -1076,7 +1085,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Scale className="size-5 text-zinc-500" />
+                            <Scale className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="weight_kg"
@@ -1089,7 +1098,7 @@ function LuxuryCars() {
                                 weight_kg: Number(e.target.value),
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 2065"
                           />
                         </div>
@@ -1101,7 +1110,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Ruler className="size-5 text-zinc-500" />
+                            <Ruler className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="wheelbase_mm"
@@ -1114,7 +1123,7 @@ function LuxuryCars() {
                                 wheelbase_mm: Number(e.target.value),
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 3216"
                           />
                         </div>
@@ -1129,7 +1138,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Fuel className="size-5 text-zinc-500" />
+                            <Fuel className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="fuel_tank_capacity"
@@ -1142,7 +1151,7 @@ function LuxuryCars() {
                                 fuel_tank_capacity: Number(e.target.value),
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 76"
                           />
                         </div>
@@ -1157,7 +1166,7 @@ function LuxuryCars() {
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Box className="size-5 text-zinc-500" />
+                            <Box className="size-5 text-amber-600" />
                           </div>
                           <Input
                             id="trunk_capacity_liters"
@@ -1170,7 +1179,7 @@ function LuxuryCars() {
                                 trunk_capacity_liters: Number(e.target.value),
                               })
                             }
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="e.g. 550"
                           />
                         </div>
@@ -1189,14 +1198,14 @@ function LuxuryCars() {
                           <div key={index} className="flex items-center gap-2">
                             <div className="relative flex-1">
                               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Check className="size-5 text-zinc-500" />
+                                <Check className="size-5 text-amber-600" />
                               </div>
                               <Input
                                 value={feature}
                                 onChange={(e) =>
                                   updateKeyFeature(index, e.target.value)
                                 }
-                                className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                                className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                                 placeholder="Enter a key feature"
                               />
                             </div>
@@ -1216,12 +1225,12 @@ function LuxuryCars() {
                       <div className="flex items-center gap-2">
                         <div className="relative flex-1">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Plus className="size-5 text-zinc-500" />
+                            <Plus className="size-5 text-amber-600" />
                           </div>
                           <Input
                             value={newFeature}
                             onChange={(e) => setNewFeature(e.target.value)}
-                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white focus:border-amber-500"
                             placeholder="Add a new feature"
                           />
                         </div>
@@ -1229,7 +1238,7 @@ function LuxuryCars() {
                           type="button"
                           variant="outline"
                           onClick={addKeyFeature}
-                          className="bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+                          className="bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-amber-200"
                         >
                           Add
                         </Button>
@@ -1249,7 +1258,7 @@ function LuxuryCars() {
                     type="button"
                     variant="outline"
                     onClick={handleCancel}
-                    className="border-zinc-700 text-zinc-800 hover:bg-zinc-800 hover:text-white"
+                    className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                   >
                     <X className="mr-1 size-4" />
                     Cancel
@@ -1258,7 +1267,7 @@ function LuxuryCars() {
                     type="submit"
                     variant="secondary"
                     disabled={addProductMutation.isPending}
-                    className="bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+                    className="bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600"
                   >
                     <Plus className="mr-1 size-4" />
                     {addProductMutation.isPending ? "Adding..." : "Add Vehicle"}
@@ -1271,14 +1280,14 @@ function LuxuryCars() {
 
         {isLoading ? (
           <div className="w-full p-8 text-center">
-            <div className="inline-block w-12 h-12 border-4 border-zinc-700 border-t-zinc-400 rounded-full animate-spin"></div>
+            <div className="inline-block w-12 h-12 border-4 border-zinc-700 border-t-amber-500 rounded-full animate-spin"></div>
             <p className="mt-4 text-zinc-400">Loading vehicles...</p>
           </div>
         ) : isError ? (
           <Card className="bg-zinc-900 border-zinc-800 shadow-md">
             <CardContent className="p-6">
               <div className="flex items-start">
-                <AlertCircle className="text-zinc-400 mr-3 flex-shrink-0" />
+                <AlertCircle className="text-amber-500 mr-3 flex-shrink-0" />
                 <div>
                   <h3 className="text-zinc-300 font-medium mb-1">
                     Failed to load vehicles
@@ -1302,7 +1311,7 @@ function LuxuryCars() {
                   key={product.id}
                   className="w-1/3 p-4 transition-all duration-500 ease-in-out"
                 >
-                  <Card className="bg-zinc-900 border-zinc-800 shadow-md overflow-hidden h-full flex flex-col hover:border-zinc-700 transition-all duration-300">
+                  <Card className="bg-zinc-900 border-zinc-800 shadow-md overflow-hidden h-full flex flex-col hover:border-amber-700 transition-all duration-300">
                     <div className="relative overflow-hidden bg-zinc-900">
                       <img
                         src={product.image_url || "/placeholder.svg"}
@@ -1318,7 +1327,7 @@ function LuxuryCars() {
                           onClick={() => toggleFavorite(product.id)}
                         >
                           <Heart
-                            className={`size-4 ${favorites.includes(product.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                            className={`size-4 ${favorites.includes(product.id) ? "fill-amber-400 text-amber-400" : "text-zinc-400"}`}
                           />
                         </Button>
                         <Button
@@ -1328,7 +1337,7 @@ function LuxuryCars() {
                           onClick={() => toggleBookmark(product.id)}
                         >
                           <Bookmark
-                            className={`size-4 ${bookmarks.includes(product.id) ? "fill-zinc-300 text-zinc-300" : "text-zinc-400"}`}
+                            className={`size-4 ${bookmarks.includes(product.id) ? "fill-amber-400 text-amber-400" : "text-zinc-400"}`}
                           />
                         </Button>
                       </div>
@@ -1341,7 +1350,7 @@ function LuxuryCars() {
                       <div className="space-y-2 mb-4">
                         <div className="flex justify-between pb-2 border-b border-zinc-800">
                           <span className="text-zinc-500">Price</span>
-                          <span className="font-medium text-white">
+                          <span className="font-medium text-amber-300">
                             {formatPrice(product.price)}
                           </span>
                         </div>
@@ -1367,7 +1376,7 @@ function LuxuryCars() {
                         <Button
                           asChild
                           variant="secondary"
-                          className="w-full bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
+                          className="w-full bg-amber-700 text-amber-100 border-amber-600 hover:bg-amber-600"
                         >
                           <Link
                             to="/cars/$id"
@@ -1388,7 +1397,7 @@ function LuxuryCars() {
                 onClick={() => rotateProducts("prev")}
                 variant="outline"
                 size="icon"
-                className="rounded-full mr-4  text-zinc-800 hover:bg-zinc-800 hover:text-white"
+                className="rounded-full mr-4 text-amber-500 hover:bg-amber-900/30 hover:text-amber-300"
                 aria-label="Previous"
               >
                 <ChevronLeft className="size-5" />
@@ -1397,7 +1406,7 @@ function LuxuryCars() {
                 onClick={() => rotateProducts("next")}
                 variant="outline"
                 size="icon"
-                className="rounded-full  text-zinc-800 hover:bg-zinc-800 hover:text-white"
+                className="rounded-full text-amber-500 hover:bg-amber-900/30 hover:text-amber-300"
                 aria-label="Next"
               >
                 <ChevronRight className="size-5" />
@@ -1408,7 +1417,7 @@ function LuxuryCars() {
           <Card className="bg-zinc-900 border-zinc-800 shadow-md text-center py-12">
             <CardContent>
               <div className="w-16 h-16 mx-auto mb-4 opacity-20">
-                <Gauge className="w-full h-full text-zinc-500" />
+                <Gauge className="w-full h-full text-amber-500" />
               </div>
               <p className="text-zinc-400">
                 No vehicles available at this time.
