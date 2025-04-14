@@ -56,7 +56,8 @@ interface Profile {
   location: string;
   contact_info: string;
   bio: string;
-  profile_picture: string;
+  profile_picture: File | string | null | undefined;
+  profile_picture_url: string;
   favorite_cars: number[];
   bookmarked_cars: number[];
   activity_log?: ActivityItem[]; // Make this optional
@@ -177,7 +178,7 @@ function ProfilePage() {
         location: profileData.location,
         contact_info: profileData.contact_info,
         bio: profileData.bio,
-        profile_picture: profileData.profile_picture,
+        profile_picture: profileData.profile_picture_url,
       });
       // Logic to determine if it's the current user
       // This depends on how you identify the current user (e.g., comparing IDs)
@@ -294,18 +295,44 @@ function ProfilePage() {
   }, [bookmarkedCarsData]);
 
   const handleUpdateProfile = async () => {
-    if (!profile) return;
+    if (!editedProfile.profile_picture) return;
 
     try {
       setIsUpdating(true);
       const token = await getToken();
+
+      const formData = new FormData();
+
+      // Append fields to formData, ensuring they are not undefined
+      if (editedProfile.name) formData.append("name", editedProfile.name);
+      if (editedProfile.location)
+        formData.append("location", editedProfile.location);
+      if (editedProfile.contact_info)
+        formData.append("contact_info", editedProfile.contact_info);
+      if (editedProfile.bio) formData.append("bio", editedProfile.bio);
+      if (editedProfile.favorite_cars)
+        formData.append(
+          "favorite_cars",
+          JSON.stringify(editedProfile.favorite_cars),
+        );
+      if (editedProfile.bookmarked_cars)
+        formData.append(
+          "bookmarked_cars",
+          JSON.stringify(editedProfile.bookmarked_cars),
+        );
+
+      // Append profile_picture if it's a valid File
+      if (editedProfile.profile_picture instanceof File) {
+        formData.append("profile_picture", editedProfile.profile_picture);
+      }
+
       const response = await fetch(`${API_URL}/profiles/`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          // Note: Do not set 'Content-Type' header when using FormData
         },
-        body: JSON.stringify(editedProfile),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -565,7 +592,7 @@ function ProfilePage() {
                 <div className="flex justify-between items-start mb-6">
                   <Avatar className="size-20 bg-zinc-800">
                     <AvatarImage
-                      src={profile.profile_picture}
+                      src={profile.profile_picture_url}
                       alt={profile.name || username}
                     />
                     <AvatarFallback className="bg-zinc-800 text-zinc-400">
@@ -588,7 +615,7 @@ function ProfilePage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
+                        className="border-zinc-700 text-zinc-800  hover:bg-zinc-800 hover:text-white"
                         onClick={() => setIsEditing(false)}
                       >
                         <X className="size-4 mr-1" />
@@ -688,14 +715,17 @@ function ProfilePage() {
                         Profile Picture URL
                       </Label>
                       <Input
-                        id="picture"
-                        value={editedProfile.profile_picture || ""}
-                        onChange={(e) =>
-                          setEditedProfile({
-                            ...editedProfile,
-                            profile_picture: e.target.value,
-                          })
-                        }
+                        id="profile_picture"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file)
+                            setEditedProfile({
+                              ...editedProfile,
+                              profile_picture: file,
+                            });
+                        }}
                         className="bg-zinc-800 border-zinc-700 text-white"
                         placeholder="https://example.com/profile.jpg"
                       />

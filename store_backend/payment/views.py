@@ -26,7 +26,7 @@ def create_payment_intent(request):
         net += product.price * item['quantity']
 
     intent = stripe.PaymentIntent.create(
-        amount=int(net * 100),
+        amount=int(net),
         currency='usd',
         metadata={
             "integration_check": "accept_a_payment"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useSearch } from "@tanstack/react-router";
 import { useAuth } from "@clerk/clerk-react";
 import { API_URL } from "../../config";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ interface OrderDetails {
 
 export default function PaymentConfirmation() {
   // Get the route params and search params
-  const { search } = Route.useSearch();
+  const search = useSearch({ strict: false });
   const { getToken } = useAuth();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading",

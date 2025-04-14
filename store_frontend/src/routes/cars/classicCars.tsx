@@ -21,6 +21,13 @@ import {
   Heart,
   Bookmark,
   Car,
+  Zap,
+  Clock,
+  Scale,
+  Ruler,
+  Fuel,
+  Box,
+  Check,
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +43,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 interface Product {
   id: number;
@@ -47,8 +56,22 @@ interface Product {
   category: number;
   availability: "in_stock" | "out_of_stock";
   car_type: "classic" | "luxury" | "electrical";
-  image: File | string | null | undefined; // <-- now supports both local file and uploaded URL}
-  image_url: string; // updated to hold the URL returned from the backend
+  image: File | string | null | undefined;
+  image_url: string;
+  image_public_id: string;
+  key_features: string[];
+  engine: string;
+  power: string;
+  torque: string;
+  transmission: string;
+  acceleration_0_100: string;
+  top_speed: string;
+  fuel_economy: string;
+  dimensions: string;
+  weight_kg: number;
+  wheelbase_mm: number;
+  fuel_tank_capacity: number;
+  trunk_capacity_liters: number;
 }
 
 interface NewProduct {
@@ -61,6 +84,19 @@ interface NewProduct {
   availability: "in_stock" | "out_of_stock";
   car_type: "classic" | "luxury" | "electrical";
   image: File | string | null | undefined;
+  key_features: string[];
+  engine: string;
+  power: string;
+  torque: string;
+  transmission: string;
+  acceleration_0_100: string;
+  top_speed: string;
+  fuel_economy: string;
+  dimensions: string;
+  weight_kg: number;
+  wheelbase_mm: number;
+  fuel_tank_capacity: number;
+  trunk_capacity_liters: number;
 }
 
 function ClassicCars() {
@@ -75,6 +111,19 @@ function ClassicCars() {
     availability: "in_stock",
     car_type: "classic",
     image: null,
+    key_features: [""],
+    engine: "",
+    power: "",
+    torque: "",
+    transmission: "",
+    acceleration_0_100: "",
+    top_speed: "",
+    fuel_economy: "",
+    dimensions: "",
+    weight_kg: 0,
+    wheelbase_mm: 0,
+    fuel_tank_capacity: 0,
+    trunk_capacity_liters: 0,
   });
   const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
   const [isAddButtonVisible, setIsAddButtonVisible] = useState<boolean>(true);
@@ -82,6 +131,7 @@ function ClassicCars() {
   const touchStartX = useRef<number | null>(null);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [bookmarks, setBookmarks] = useState<number[]>([]);
+  const [newFeature, setNewFeature] = useState<string>("");
 
   const { getToken, isSignedIn } = useAuth();
 
@@ -153,6 +203,29 @@ function ClassicCars() {
       formData.append("car_type", productData.car_type);
       formData.append("image", productData.image);
 
+      // Append new technical specifications
+      formData.append("engine", productData.engine);
+      formData.append("power", productData.power);
+      formData.append("torque", productData.torque);
+      formData.append("transmission", productData.transmission);
+      formData.append("acceleration_0_100", productData.acceleration_0_100);
+      formData.append("top_speed", productData.top_speed);
+      formData.append("fuel_economy", productData.fuel_economy);
+      formData.append("dimensions", productData.dimensions);
+      formData.append("weight_kg", productData.weight_kg.toString());
+      formData.append("wheelbase_mm", productData.wheelbase_mm.toString());
+      formData.append(
+        "fuel_tank_capacity",
+        productData.fuel_tank_capacity.toString(),
+      );
+      formData.append(
+        "trunk_capacity_liters",
+        productData.trunk_capacity_liters.toString(),
+      );
+
+      // Append key features as a JSON string
+      formData.append("key_features", JSON.stringify(productData.key_features));
+
       const response = await fetch(`${API_URL}/api/`, {
         method: "POST",
         headers: {
@@ -209,13 +282,28 @@ function ClassicCars() {
         availability: "in_stock",
         car_type: "classic",
         image: null,
+        key_features: [""],
+        engine: "",
+        power: "",
+        torque: "",
+        transmission: "",
+        acceleration_0_100: "",
+        top_speed: "",
+        fuel_economy: "",
+        dimensions: "",
+        weight_kg: 0,
+        wheelbase_mm: 0,
+        fuel_tank_capacity: 0,
+        trunk_capacity_liters: 0,
       });
       setIsFormVisible(false);
       setIsAddButtonVisible(true);
       setError("");
+      toast.success("Vehicle added successfully!");
     },
     onError: (error: Error) => {
       setError(error.message || "Failed to add product. Please try again.");
+      toast.error("Failed to add vehicle");
     },
   });
 
@@ -387,10 +475,44 @@ function ClassicCars() {
         return;
       }
 
+      // Validate numeric fields
+      if (isNaN(newProduct.weight_kg) || newProduct.weight_kg < 0) {
+        setError("Weight must be a non-negative number.");
+        return;
+      }
+
+      if (isNaN(newProduct.wheelbase_mm) || newProduct.wheelbase_mm < 0) {
+        setError("Wheelbase must be a non-negative number.");
+        return;
+      }
+
+      if (
+        isNaN(newProduct.fuel_tank_capacity) ||
+        newProduct.fuel_tank_capacity < 0
+      ) {
+        setError("Fuel tank capacity must be a non-negative number.");
+        return;
+      }
+
+      if (
+        isNaN(newProduct.trunk_capacity_liters) ||
+        newProduct.trunk_capacity_liters < 0
+      ) {
+        setError("Trunk capacity must be a non-negative number.");
+        return;
+      }
+
+      // Filter out empty key features
+      const filteredKeyFeatures = newProduct.key_features.filter(
+        (feature) => feature.trim() !== "",
+      );
+
       const productData: NewProduct = {
         ...newProduct,
         price: priceFloat.toString(),
         stock_quantity: stockQuantity,
+        key_features:
+          filteredKeyFeatures.length > 0 ? filteredKeyFeatures : [""],
       };
 
       addProductMutation.mutate(productData);
@@ -416,10 +538,38 @@ function ClassicCars() {
     return `$${Number.parseFloat(price).toFixed(2)}`;
   };
 
+  const addKeyFeature = () => {
+    if (newFeature.trim() !== "") {
+      setNewProduct({
+        ...newProduct,
+        key_features: [...newProduct.key_features, newFeature],
+      });
+      setNewFeature("");
+    }
+  };
+
+  const removeKeyFeature = (index: number) => {
+    const updatedFeatures = [...newProduct.key_features];
+    updatedFeatures.splice(index, 1);
+    setNewProduct({
+      ...newProduct,
+      key_features: updatedFeatures.length > 0 ? updatedFeatures : [""],
+    });
+  };
+
+  const updateKeyFeature = (index: number, value: string) => {
+    const updatedFeatures = [...newProduct.key_features];
+    updatedFeatures[index] = value;
+    setNewProduct({
+      ...newProduct,
+      key_features: updatedFeatures,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950">
       <div className="w-full max-w-6xl mx-auto p-4">
-        <h2 className="text-3xl font-medium text-white mb-6">CLassic Cars</h2>
+        <h2 className="text-3xl font-medium text-white mb-6">Classic Cars</h2>
 
         {error && (
           <div className="mb-6 p-3 bg-zinc-800 border border-zinc-700 rounded-lg flex items-start">
@@ -450,244 +600,659 @@ function ClassicCars() {
               </h3>
 
               <form onSubmit={addProduct} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div>
-                    <Label htmlFor="name" className="text-zinc-400">
-                      Name
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Gauge className="size-5 text-zinc-500" />
-                      </div>
-                      <Input
-                        id="name"
-                        value={newProduct.name}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, name: e.target.value })
-                        }
-                        required
-                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
-                        placeholder="Enter vehicle name"
-                      />
-                    </div>
-                  </div>
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid grid-cols-3 mb-4 bg-zinc-800">
+                    <TabsTrigger
+                      value="basic"
+                      className="data-[state=active]:bg-zinc-500 text-zinc-400"
+                    >
+                      Basic Info
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="specs"
+                      className="data-[state=active]:bg-zinc-700 text-zinc-400"
+                    >
+                      Technical Specs
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="features"
+                      className="data-[state=active]:bg-zinc-700 text-zinc-400"
+                    >
+                      Features
+                    </TabsTrigger>
+                  </TabsList>
 
-                  <div>
-                    <Label htmlFor="sku" className="text-zinc-400">
-                      SKU
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Tag className="size-5 text-zinc-500" />
+                  <TabsContent value="basic" className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <Label htmlFor="name" className="text-zinc-400">
+                          Name
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Gauge className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="name"
+                            value={newProduct.name}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                name: e.target.value,
+                              })
+                            }
+                            required
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="Enter vehicle name"
+                          />
+                        </div>
                       </div>
-                      <Input
-                        id="sku"
-                        value={newProduct.sku}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, sku: e.target.value })
-                        }
-                        required
-                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
-                        placeholder="Enter SKU"
-                      />
-                    </div>
-                  </div>
 
-                  <div>
-                    <Label htmlFor="price" className="text-zinc-400">
-                      Price
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <DollarSign className="size-5 text-zinc-500" />
+                      <div>
+                        <Label htmlFor="sku" className="text-zinc-400">
+                          SKU
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Tag className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="sku"
+                            value={newProduct.sku}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                sku: e.target.value,
+                              })
+                            }
+                            required
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="Enter SKU"
+                          />
+                        </div>
                       </div>
-                      <Input
-                        id="price"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={newProduct.price}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            price: e.target.value,
-                          })
-                        }
-                        required
-                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
-                        placeholder="Enter price"
-                      />
-                    </div>
-                  </div>
 
-                  <div>
-                    <Label htmlFor="stock" className="text-zinc-400">
-                      Stock Quantity
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Package className="size-5 text-zinc-500" />
+                      <div>
+                        <Label htmlFor="price" className="text-zinc-400">
+                          Price
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <DollarSign className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="price"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={newProduct.price}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                price: e.target.value,
+                              })
+                            }
+                            required
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="Enter price"
+                          />
+                        </div>
                       </div>
-                      <Input
-                        id="stock"
-                        type="number"
-                        min="0"
-                        value={newProduct.stock_quantity}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            stock_quantity: Number(e.target.value),
-                          })
-                        }
-                        required
-                        className="pl-10 bg-zinc-800 border-zinc-700 text-white"
-                        placeholder="Enter stock quantity"
-                      />
-                    </div>
-                  </div>
 
-                  <div>
-                    <Label htmlFor="category" className="text-zinc-400">
-                      Category
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Layers className="size-5 text-zinc-500" />
+                      <div>
+                        <Label htmlFor="stock" className="text-zinc-400">
+                          Stock Quantity
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Package className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="stock"
+                            type="number"
+                            min="0"
+                            value={newProduct.stock_quantity}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                stock_quantity: Number(e.target.value),
+                              })
+                            }
+                            required
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="Enter stock quantity"
+                          />
+                        </div>
                       </div>
-                      <Select
-                        value={newProduct.category.toString()}
-                        onValueChange={(value) =>
-                          setNewProduct({
-                            ...newProduct,
-                            category: Number.parseInt(value),
-                          })
-                        }
+
+                      <div>
+                        <Label htmlFor="category" className="text-zinc-400">
+                          Category
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Layers className="size-5 text-zinc-500" />
+                          </div>
+                          <Select
+                            value={newProduct.category.toString()}
+                            onValueChange={(value) =>
+                              setNewProduct({
+                                ...newProduct,
+                                category: Number.parseInt(value),
+                              })
+                            }
+                          >
+                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+                              <SelectItem value="1">
+                                Default Category
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="availability" className="text-zinc-400">
+                          Availability
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Package className="size-5 text-zinc-500" />
+                          </div>
+                          <Select
+                            value={newProduct.availability}
+                            onValueChange={(value) =>
+                              setNewProduct({
+                                ...newProduct,
+                                availability: value as
+                                  | "in_stock"
+                                  | "out_of_stock",
+                              })
+                            }
+                          >
+                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                              <SelectValue placeholder="Select availability" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+                              <SelectItem value="in_stock">In Stock</SelectItem>
+                              <SelectItem value="out_of_stock">
+                                Out of Stock
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="car_type" className="text-zinc-400">
+                          Car Type
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Car className="size-5 text-zinc-500" />
+                          </div>
+                          <Select
+                            value={newProduct.car_type}
+                            onValueChange={(value) =>
+                              setNewProduct({
+                                ...newProduct,
+                                car_type: value as
+                                  | "classic"
+                                  | "luxury"
+                                  | "electrical",
+                              })
+                            }
+                          >
+                            <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
+                              <SelectValue placeholder="Select car type" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+                              <SelectItem value="classic">Classic</SelectItem>
+                              <SelectItem value="luxury">Luxury</SelectItem>
+                              <SelectItem value="electrical">
+                                Electrical
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="description" className="text-zinc-400">
+                        Description
+                      </Label>
+                      <div className="relative">
+                        <div className="absolute top-3 left-3 flex items-start pointer-events-none">
+                          <FileText className="size-5 text-zinc-500" />
+                        </div>
+                        <Textarea
+                          id="description"
+                          value={newProduct.description}
+                          onChange={(e) =>
+                            setNewProduct({
+                              ...newProduct,
+                              description: e.target.value,
+                            })
+                          }
+                          className="pl-10 bg-zinc-800 border-zinc-700 text-white min-h-[120px]"
+                          placeholder="Enter vehicle description"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="image"
+                        className="text-zinc-300 text-sm font-medium mb-1"
                       >
-                        <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
-                          <SelectItem value="1">Default Category</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="availability" className="text-zinc-400">
-                      Availability
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Package className="size-5 text-zinc-500" />
+                        Image Upload
+                      </Label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                          <ImageIcon className="size-5 text-zinc-400" />
+                        </div>
+                        <Input
+                          id="image"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file)
+                              setNewProduct({ ...newProduct, image: file });
+                          }}
+                          required
+                          className="pl-10 h-10 w-full bg-zinc-900 border border-zinc-700 rounded-md text-zinc-100
+                          file:mr-4 file:py-1 file:px-4
+                          file:rounded-r-md file:rounded-l-md file:border-0
+                          file:text-sm file:font-medium
+                          file:bg-zinc-700 file:text-zinc-200
+                          hover:file:bg-zinc-200 hover:file:text-zinc-700
+                          focus:border-zinc-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                          transition-all
+                          placeholder-zinc-500
+                          disabled:opacity-50"
+                          placeholder=" "
+                        />
                       </div>
-                      <Select
-                        value={newProduct.availability}
-                        onValueChange={(value) =>
-                          setNewProduct({
-                            ...newProduct,
-                            availability: value as "in_stock" | "out_of_stock",
-                          })
-                        }
-                      >
-                        <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
-                          <SelectValue placeholder="Select availability" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
-                          <SelectItem value="in_stock">In Stock</SelectItem>
-                          <SelectItem value="out_of_stock">
-                            Out of Stock
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <p className="text-sm text-zinc-500 mt-1">
+                        Supported formats: PNG, JPG, JPEG (max 5MB)
+                      </p>
                     </div>
-                  </div>
+                  </TabsContent>
 
-                  <div>
-                    <Label htmlFor="car_type" className="text-zinc-400">
-                      Car Type
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Car className="size-5 text-zinc-500" />
+                  <TabsContent value="specs" className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <Label htmlFor="engine" className="text-zinc-400">
+                          Engine
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Gauge className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="engine"
+                            value={newProduct.engine}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                engine: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 4.0L Twin-Turbo V8"
+                          />
+                        </div>
                       </div>
-                      <Select
-                        value={newProduct.car_type}
-                        onValueChange={(value) =>
-                          setNewProduct({
-                            ...newProduct,
-                            car_type: value as "classic" | "luxury" | "classic",
-                          })
-                        }
-                      >
-                        <SelectTrigger className="pl-10 bg-zinc-800 border-zinc-700 text-white">
-                          <SelectValue placeholder="Select car type" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
-                          <SelectItem value="classic">Classic</SelectItem>
-                          <SelectItem value="luxury"> Luxury</SelectItem>
-                          <SelectItem value="electrical">Electrical</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
 
-                <div>
-                  <Label htmlFor="description" className="text-zinc-400">
-                    Description
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute top-3 left-3 flex items-start pointer-events-none">
-                      <FileText className="size-5 text-zinc-500" />
-                    </div>
-                    <Textarea
-                      id="description"
-                      value={newProduct.description}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          description: e.target.value,
-                        })
-                      }
-                      className="pl-10 bg-zinc-800 border-zinc-700 text-white min-h-[120px]"
-                      placeholder="Enter vehicle description"
-                    />
-                  </div>
-                </div>
+                      <div>
+                        <Label htmlFor="power" className="text-zinc-400">
+                          Power
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Zap className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="power"
+                            value={newProduct.power}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                power: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 496 hp @ 5,500 rpm"
+                          />
+                        </div>
+                      </div>
 
-                <div>
-                  <Label htmlFor="image" className="text-zinc-400">
-                    Image URL
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <ImageIcon className="size-5 text-zinc-500" />
+                      <div>
+                        <Label htmlFor="torque" className="text-zinc-400">
+                          Torque
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Gauge className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="torque"
+                            value={newProduct.torque}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                torque: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 700 Nm @ 2,000-4,500 rpm"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="transmission" className="text-zinc-400">
+                          Transmission
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Gauge className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="transmission"
+                            value={newProduct.transmission}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                transmission: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 9G-TRONIC 9-Speed Automatic"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label
+                          htmlFor="acceleration_0_100"
+                          className="text-zinc-400"
+                        >
+                          Acceleration (0-100 km/h)
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Clock className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="acceleration_0_100"
+                            value={newProduct.acceleration_0_100}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                acceleration_0_100: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 4.3 seconds"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="top_speed" className="text-zinc-400">
+                          Top Speed
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Gauge className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="top_speed"
+                            value={newProduct.top_speed}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                top_speed: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 250 km/h (electronically limited)"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="fuel_economy" className="text-zinc-400">
+                          Fuel Economy
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Fuel className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="fuel_economy"
+                            value={newProduct.fuel_economy}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                fuel_economy: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 10.2 L/100km (combined)"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="dimensions" className="text-zinc-400">
+                          Dimensions
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Ruler className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="dimensions"
+                            value={newProduct.dimensions}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                dimensions: e.target.value,
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 5,289 mm × 1,954 mm × 1,503 mm"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="weight_kg" className="text-zinc-400">
+                          Weight (kg)
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Scale className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="weight_kg"
+                            type="number"
+                            min="0"
+                            value={newProduct.weight_kg}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                weight_kg: Number(e.target.value),
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 2065"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="wheelbase_mm" className="text-zinc-400">
+                          Wheelbase (mm)
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Ruler className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="wheelbase_mm"
+                            type="number"
+                            min="0"
+                            value={newProduct.wheelbase_mm}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                wheelbase_mm: Number(e.target.value),
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 3216"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label
+                          htmlFor="fuel_tank_capacity"
+                          className="text-zinc-400"
+                        >
+                          Fuel Tank Capacity (liters)
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Fuel className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="fuel_tank_capacity"
+                            type="number"
+                            min="0"
+                            value={newProduct.fuel_tank_capacity}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                fuel_tank_capacity: Number(e.target.value),
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 76"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label
+                          htmlFor="trunk_capacity_liters"
+                          className="text-zinc-400"
+                        >
+                          Trunk Capacity (liters)
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Box className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            id="trunk_capacity_liters"
+                            type="number"
+                            min="0"
+                            value={newProduct.trunk_capacity_liters}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                trunk_capacity_liters: Number(e.target.value),
+                              })
+                            }
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="e.g. 550"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <Input
-                      id="image"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          // Store the file or upload it directly to Cloudinary here
-                          setNewProduct({ ...newProduct, image: file });
-                        }
-                      }}
-                      required
-                      className="pl-10 bg-zinc-800 border-zinc-700 text-white"
-                      placeholder="Upload image"
-                    />
-                  </div>
-                </div>
+                  </TabsContent>
+
+                  <TabsContent value="features" className="space-y-5">
+                    <div>
+                      <Label className="text-zinc-400 block mb-2">
+                        Key Features
+                      </Label>
+
+                      <div className="space-y-3 mb-4">
+                        {newProduct.key_features.map((feature, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Check className="size-5 text-zinc-500" />
+                              </div>
+                              <Input
+                                value={feature}
+                                onChange={(e) =>
+                                  updateKeyFeature(index, e.target.value)
+                                }
+                                className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                                placeholder="Enter a key feature"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeKeyFeature(index)}
+                              className="bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+                            >
+                              <X className="size-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Plus className="size-5 text-zinc-500" />
+                          </div>
+                          <Input
+                            value={newFeature}
+                            onChange={(e) => setNewFeature(e.target.value)}
+                            className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                            placeholder="Add a new feature"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addKeyFeature}
+                          className="bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+                        >
+                          Add
+                        </Button>
+                      </div>
+
+                      <p className="text-sm text-zinc-500 mt-2">
+                        Add all the key features of the vehicle
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                <Separator className="my-4 bg-zinc-800" />
 
                 <div className="flex justify-end gap-3">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleCancel}
-                    className="border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
+                    className="border-zinc-700 text-zinc-800 hover:bg-zinc-800 hover:text-white"
                   >
                     <X className="mr-1 size-4" />
                     Cancel
@@ -699,7 +1264,7 @@ function ClassicCars() {
                     className="bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
                   >
                     <Plus className="mr-1 size-4" />
-                    {addProductMutation.isPending ? "Adding..." : "Add Product"}
+                    {addProductMutation.isPending ? "Adding..." : "Add Vehicle"}
                   </Button>
                 </div>
               </form>
@@ -743,7 +1308,7 @@ function ClassicCars() {
                   <Card className="bg-zinc-900 border-zinc-800 shadow-md overflow-hidden h-full flex flex-col hover:border-zinc-700 transition-all duration-300">
                     <div className="relative overflow-hidden bg-zinc-900">
                       <img
-                        src={product.image_url}
+                        src={product.image_url || "/placeholder.svg"}
                         alt={product.name}
                         className="w-full h-48 object-cover transition-transform duration-700 hover:scale-105"
                       />
@@ -826,7 +1391,7 @@ function ClassicCars() {
                 onClick={() => rotateProducts("prev")}
                 variant="outline"
                 size="icon"
-                className="rounded-full mr-4 border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
+                className="rounded-full mr-4  text-zinc-800 hover:bg-zinc-800 hover:text-white"
                 aria-label="Previous"
               >
                 <ChevronLeft className="size-5" />
@@ -835,7 +1400,7 @@ function ClassicCars() {
                 onClick={() => rotateProducts("next")}
                 variant="outline"
                 size="icon"
-                className="rounded-full border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
+                className="rounded-full  text-zinc-800 hover:bg-zinc-800 hover:text-white"
                 aria-label="Next"
               >
                 <ChevronRight className="size-5" />
