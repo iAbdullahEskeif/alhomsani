@@ -85,10 +85,24 @@ export default function StripeComponent({
   });
 
   useEffect(() => {
+    const fetchClientSecret = async () => {
+      try {
+        const token: string | null = await getToken();
+        if (!token) {
+          throw new Error("Authentication failed. Please log in again.");
+        }
+        const data = await createPaymentIntent(token, carId, quantity);
+        setClientSecret(data.client_secret);
+      } catch (err) {
+        console.error("Payment intent error:", err);
+        setError("Failed to initialize payment. Please try again.");
+      }
+    };
+
     if (carId && quantity) {
-      mutation.mutate();
+      fetchClientSecret();
     }
-  }, [carId, quantity, mutation]);
+  }, [carId, quantity, getToken]);
 
   if (mutation.isPending) {
     return (
