@@ -8,3 +8,5 @@ app_name='payment'
 urlpatterns=[
     path('intent/',create_payment_intent,name='create_intent')
 ]
+
+

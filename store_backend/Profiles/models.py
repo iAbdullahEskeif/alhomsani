@@ -29,7 +29,10 @@ class Profile(models.Model):
     bookmarked_cars = models.ManyToManyField(Product, related_name='bookmarked_by', blank=True)
     
     def __str__(self):
-        return self.user.username
+        if self.name:
+            return self.name
+        else:
+            return self.user.username
 
 class ActivityLog(models.Model):
     ACTION_CHOICES = [
@@ -50,6 +53,7 @@ class Reviews(models.Model):
     reviewer=models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='reviews')
     car=models.ForeignKey(Product,on_delete=models.CASCADE,related_name='reviews')
     review=models.CharField(max_length=500)
+    #reviewer_Profile_pic=models.URLField(blank=True,null=True)
     time_written=models.DateTimeField(auto_now_add=True)
 
 
